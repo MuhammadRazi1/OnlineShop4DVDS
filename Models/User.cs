@@ -9,7 +9,7 @@ namespace OnlineShop4DVDS.Models
         public int UserId { get; set; }
 
         [Required(ErrorMessage = "Username is required")]
-        [StringLength(50, MinimumLength = 5, ErrorMessage = "Username must be between 3 and 50 characters")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 50 characters")]
         public string UserName { get; set; }
 
         [Required(ErrorMessage = "Email is required")]
@@ -27,6 +27,6 @@ namespace OnlineShop4DVDS.Models
         [Compare("UserPassword", ErrorMessage = "Passwords do not match")]
         public string UserConfirmPassword { get; set; }
 
-        public string UserRole { get; set; }
+        public string? UserRole { get; set; }
     }
 }
