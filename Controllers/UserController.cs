@@ -14,6 +14,8 @@ namespace OnlineShop4DVDS.Controllers
             this.sqlContext = sqlContext;
         }
 
+//User Register
+
         [HttpGet]
         public IActionResult Register()
         {
@@ -59,6 +61,8 @@ namespace OnlineShop4DVDS.Controllers
             }
         }
 
+//User Login
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -90,21 +94,27 @@ namespace OnlineShop4DVDS.Controllers
 
             if(user.UserRole == "Admin")
             {
-                return RedirectToAction("Admin", "Index");
+                return RedirectToAction("Index", "Admin");
             }
 
             return RedirectToAction("Index");
         }
 
-        [HttpPost]
+//User Logout
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             HttpContext.Session.Remove("UserName");
             HttpContext.Session.Remove("UserEmail");
+            HttpContext.Session.SetString("UserRole", "Guest");
 
-            return RedirectToAction("Login", "User");
+            Console.WriteLine($"User role changed to Session Role: {HttpContext.Session.GetString("UserRole")}");
+
+            return RedirectToAction("Login");
         }
+
+//Index View
 
         public IActionResult Index()
         {
@@ -113,6 +123,9 @@ namespace OnlineShop4DVDS.Controllers
             ViewBag.UserName = username;
             return View();
         }
+
+//Profile View
+
         public IActionResult Profile()
         {
             var username = HttpContext.Session.GetString("UserName");
@@ -126,6 +139,89 @@ namespace OnlineShop4DVDS.Controllers
             ViewBag.UserEmail = useremail;
 
             return View();
+        }
+
+//Profile Update
+
+        [HttpGet]
+        public IActionResult ProfileUpdate()
+        {
+            string? useremail = HttpContext.Session.GetString("UserEmail");
+
+            if (string.IsNullOrEmpty(useremail))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = sqlContext.Users.FirstOrDefault(u => u.UserEmail == useremail);
+            if(user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult ProfileUpdate(User updateUser)
+        {
+            string? useremail = HttpContext.Session.GetString("UserEmail");
+
+            if(string.IsNullOrEmpty(useremail))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = sqlContext.Users.FirstOrDefault(u => u.UserEmail == useremail);
+            if(user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if(sqlContext.Users.Any(u => u.UserEmail == updateUser.UserEmail && u.UserEmail != useremail))
+            {
+                ModelState.AddModelError("UserEmail", "This email is already in use.");
+                return View(updateUser);
+            }
+
+            user.UserEmail = updateUser.UserEmail;
+            user.UserName = updateUser.UserName;
+
+            sqlContext.SaveChanges();
+
+            HttpContext.Session.SetString("UserEmail", user.UserEmail);
+            HttpContext.Session.SetString("UserName", user.UserName);
+
+            Console.WriteLine($"User email updated to: {HttpContext.Session.GetString("UserEmail")}");
+            Console.WriteLine($"User name updated to: {HttpContext.Session.GetString("UserName")}");
+
+            return RedirectToAction("Profile");
+        }
+
+//Account Delete
+
+        [HttpPost]
+        public IActionResult DeleteAccount()
+        {
+            string? useremail = HttpContext.Session.GetString("UserEmail");
+
+            if (string.IsNullOrEmpty(useremail))
+            {
+                return RedirectToAction("Login");
+            }
+
+            var user = sqlContext.Users.FirstOrDefault(u => u.UserEmail == useremail);
+            if(user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            sqlContext.Users.Remove(user);
+            sqlContext.SaveChanges();
+
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Register");
         }
     }
 }

@@ -15,6 +15,10 @@
     <h2>@ViewBag.UserEmail</h2>
 
     <a asp-controller="User" asp-action="Logout" class="btn btn-danger">Logout</a>
+    <a asp-controller="User" asp-action="ProfileUpdate" class="btn btn-primary">Update Profile</a>
+    <form asp-action="DeleteAccount" method="post">
+        <input type="submit" value="Delete Account" class="btn btn-secondary" onclick="return confirm('Are you sure you want to delete your account? This action is irreversible!');" />
+    </form>
 }
 else{
     <h2>Unauthorized Access</h2>
