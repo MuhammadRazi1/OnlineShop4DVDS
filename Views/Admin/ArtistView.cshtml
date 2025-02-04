@@ -1,0 +1,59 @@
+﻿@model IEnumerable<OnlineShop4DVDS.Models.Artist>
+
+@{
+    ViewData["Title"] = "ArtistView";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>ArtistView</h1>
+
+<p>
+    <a asp-action="ArtistInsert">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ArtistName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArtistAge)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArtistBio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArtistImage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ArtistRole)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArtistName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArtistAge)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArtistBio)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArtistImage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ArtistRole.ArtistRoleName)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ArtistId">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@item.ArtistId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

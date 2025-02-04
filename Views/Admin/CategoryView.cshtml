@@ -1,0 +1,40 @@
+﻿@model IEnumerable<OnlineShop4DVDS.Models.Category>
+
+@{
+    ViewData["Title"] = "CategoryView";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>CategoryView</h1>
+
+<p>
+    <a asp-action="CategoryInsert" class="btn btn-primary">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CategoryId)
+                @Html.DisplayNameFor(model => model.CategoryName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryId)
+                @Html.DisplayFor(modelItem => item.CategoryName)
+            </td>
+            <td>
+                <a asp-action="CategoryUpdate" asp-route-id="@item.CategoryId">Edit</a>
+                    <form asp-action="CategoryDelete" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@item.CategoryId" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop4DVDS.Models;
+using OnlineShop4DVDS.Seeders;
 
 namespace OnlineShop4DVDS.SqlDbContext
 {
@@ -11,5 +12,18 @@ namespace OnlineShop4DVDS.SqlDbContext
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<ArtistRole> ArtistRoles { get; set; }
+        public DbSet<Artist> Artists { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            ArtistRoleSeeder.Seed(modelBuilder);
+
+            modelBuilder.Entity<Artist>()
+                .HasOne(a => a.ArtistRole)
+                .WithMany()
+                .HasForeignKey(a => a.ArtistRoleId);
+        }
     }
 }
