@@ -8,7 +8,7 @@ namespace OnlineShop4DVDS.Models
         [Key]
         public int ArtistId { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Artist role is required.")]
         public int ArtistRoleId { get; set; }
 
         [Required]
@@ -20,7 +20,8 @@ namespace OnlineShop4DVDS.Models
         public int ArtistAge { get; set; }
 
         [Required]
-        public DateOnly ArtistDateOfBirth { get; set; }
+        [DataType(DataType.Date)]
+        public DateTime ArtistDateOfBirth { get; set; }
 
         [Required]
         public string ArtistBio { get; set; }
@@ -28,6 +29,6 @@ namespace OnlineShop4DVDS.Models
         public string? ArtistImage { get; set; }
 
         [ForeignKey("ArtistRoleId")]
-        public ArtistRole ArtistRole { get; set; }
+        public virtual ArtistRole? ArtistRole { get; set; }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using OnlineShop4DVDS.Models;
 using OnlineShop4DVDS.SqlDbContext;
 
@@ -7,10 +9,12 @@ namespace OnlineShop4DVDS.Controllers
     public class AdminController : Controller
     {
         SqlContext sqlContext;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(SqlContext sqlContext)
+        public AdminController(SqlContext sqlContext, ILogger<AdminController> logger)
         {
             this.sqlContext = sqlContext;
+            this._logger = logger;
         }
 
         public IActionResult Index()
@@ -108,7 +112,7 @@ namespace OnlineShop4DVDS.Controllers
 
         public IActionResult ArtistView()
         {
-            var artists = sqlContext.Artists.ToList();
+            var artists = sqlContext.Artists.Include(a => a.ArtistRole).ToList();
             return View(artists);
         }
 
@@ -121,7 +125,6 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-
         public IActionResult ArtistInsert(Artist artist)
         {
             if (!ModelState.IsValid)
@@ -132,7 +135,66 @@ namespace OnlineShop4DVDS.Controllers
 
             sqlContext.Artists.Add(artist);
             sqlContext.SaveChanges();
-            ModelState.Clear();
+
+            return RedirectToAction("ArtistView");
+        }
+
+        //Artist Update
+
+        public IActionResult ArtistUpdate(int id)
+        {
+            var artist = sqlContext.Artists.Include(a => a.ArtistRole).FirstOrDefault(c => c.ArtistId == id);
+            if(artist == null)
+            {
+                return View("ArtistView");
+            }
+
+            ViewBag.ArtistRoles = new SelectList(sqlContext.ArtistRoles.ToList(), "ArtistRoleId", "ArtistRoleName", artist.ArtistRoleId);
+
+            return View(artist);
+        }
+
+        [HttpPost]
+        public IActionResult ArtistUpdate(Artist artist)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.ArtistRoles = new SelectList(sqlContext.ArtistRoles.ToList(), "ArtistRoleId", "ArtistRoleName", artist.ArtistRoleId);
+                return View(artist);
+            }
+
+            var existingArtist = sqlContext.Artists.FirstOrDefault(a => a.ArtistId == artist.ArtistId);
+            if(existingArtist == null)
+            {
+                return NotFound();
+            }
+
+            existingArtist.ArtistName = artist.ArtistName;
+            existingArtist.ArtistAge = artist.ArtistAge;
+            existingArtist.ArtistDateOfBirth = artist.ArtistDateOfBirth;
+            existingArtist.ArtistBio = artist.ArtistBio;
+            existingArtist.ArtistImage = artist.ArtistImage;
+            existingArtist.ArtistRoleId = artist.ArtistRoleId;
+
+            sqlContext.Artists.Update(existingArtist);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("ArtistView");
+        }
+
+        //Artist Delete
+
+        [HttpPost]
+        public IActionResult ArtistDelete(int id)
+        {
+            var artist = sqlContext.Artists.FirstOrDefault(a => a.ArtistId == id);
+            if(artist == null)
+            {
+                return NotFound();
+            }
+
+            sqlContext.Artists.Remove(artist);
+            sqlContext.SaveChanges();
 
             return RedirectToAction("ArtistView");
         }

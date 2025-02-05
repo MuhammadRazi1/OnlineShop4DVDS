@@ -14,6 +14,9 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.ArtistId)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.ArtistName)
             </th>
             <th>
@@ -35,6 +38,9 @@
 @foreach (var item in Model) {
         <tr>
             <td>
+                @Html.DisplayFor(modelItem => item.ArtistId)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.ArtistName)
             </td>
             <td>
@@ -47,11 +53,14 @@
                 @Html.DisplayFor(modelItem => item.ArtistImage)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.ArtistRole.ArtistRoleName)
+                    @(item.ArtistRole?.ArtistRoleName ?? "No Role")
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ArtistId">Edit</a> |
-                <a asp-action="Delete" asp-route-id="@item.ArtistId">Delete</a>
+                <a asp-action="ArtistUpdate" asp-route-id="@item.ArtistId">Edit</a> |
+                <form asp-action="ArtistDelete" method="post" style="display: inline">
+                    <input type="hidden" name="id" value="@item.ArtistId"/>
+                <button type="submit" class="btn btn-link" onclick="return confirm('Are you sure you want to delete this artist?');">Delete</button>
+                </form>
             </td>
         </tr>
 }

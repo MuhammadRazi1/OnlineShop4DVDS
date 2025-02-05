@@ -1,19 +1,19 @@
 ﻿@model OnlineShop4DVDS.Models.Artist
 
 @{
-    ViewData["Title"] = "ArtistInsert";
+    ViewData["Title"] = "ArtistUpdate";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
 
-<h1>ArtistInsert</h1>
+<h1>ArtistUpdate</h1>
 
 <h4>Artist</h4>
-<div asp-validation-summary="All" class="text-danger"></div>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="ArtistInsert" method="post">
+        <form asp-action="ArtistUpdate" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ArtistId" />
             <div class="form-group">
                 <label asp-for="ArtistName" class="control-label"></label>
                 <input asp-for="ArtistName" class="form-control" />
@@ -25,13 +25,13 @@
                 <span asp-validation-for="ArtistAge" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ArtistDateOfBirth"></label>
-                <input asp-for="ArtistDateOfBirth" class="form-control" type="date"/>
+                <label asp-for="ArtistDateOfBirth" class="control-label"></label>
+                <input asp-for="ArtistDateOfBirth" class="form-control" />
                 <span asp-validation-for="ArtistDateOfBirth" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ArtistBio"></label>
-                <textarea asp-for="ArtistBio" class="form-control"></textarea>
+                <label asp-for="ArtistBio" class="control-label"></label>
+                <input asp-for="ArtistBio" class="form-control" />
                 <span asp-validation-for="ArtistBio" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -40,14 +40,12 @@
                 <span asp-validation-for="ArtistImage" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ArtistRoleId">Artist Role</label>
-                <select asp-for="ArtistRoleId" class="form-control" asp-items="@(new SelectList(ViewBag.ArtistRoles, "ArtistRoleId", "ArtistRoleName"))">
-                    <option value="">-- Select Role --</option>
-                </select>
+                <label asp-for="ArtistRoleId" class="control-label">Artist Role</label>
+                <select asp-for="ArtistRoleId" class="form-control" asp-items="ViewBag.ArtistRoles"></select>
                 <span asp-validation-for="ArtistRoleId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>
