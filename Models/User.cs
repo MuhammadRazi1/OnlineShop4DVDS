@@ -28,5 +28,7 @@ namespace OnlineShop4DVDS.Models
         public string UserConfirmPassword { get; set; }
 
         public string? UserRole { get; set; }
+
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
