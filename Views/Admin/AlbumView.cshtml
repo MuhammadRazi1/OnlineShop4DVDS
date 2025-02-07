@@ -1,0 +1,66 @@
+﻿@model IEnumerable<OnlineShop4DVDS.Models.Album>
+
+@{
+    ViewData["Title"] = "AlbumView";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>AlbumView</h1>
+
+<p>
+    <a asp-action="AlbumInsert">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AlbumTitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AlbumReleaseDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AlbumDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AlbumPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AlbumImage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Artist)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.AlbumTitle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AlbumReleaseDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AlbumDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AlbumPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AlbumImage)
+            </td>
+            <td>
+                    @(item.Artist?.ArtistName ?? "No Artist")
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.AlbumId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.AlbumId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.AlbumId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

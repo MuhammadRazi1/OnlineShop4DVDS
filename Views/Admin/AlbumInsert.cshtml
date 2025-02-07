@@ -1,0 +1,61 @@
+﻿@model OnlineShop4DVDS.Models.Album
+
+@{
+    ViewData["Title"] = "AlbumInsert";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>AlbumInsert</h1>
+
+<h4>Album</h4>
+<div asp-validation-summary="All" class="text-danger"></div>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AlbumInsert" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="AlbumTitle" class="control-label"></label>
+                <input asp-for="AlbumTitle" class="form-control" />
+                <span asp-validation-for="AlbumTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlbumReleaseDate" class="control-label"></label>
+                <input asp-for="AlbumReleaseDate" class="form-control" type="date"/>
+                <span asp-validation-for="AlbumReleaseDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlbumDescription" class="control-label"></label>
+                <textarea asp-for="AlbumDescription" class="form-control" ></textarea>
+                <span asp-validation-for="AlbumDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlbumPrice" class="control-label"></label>
+                <input asp-for="AlbumPrice" class="form-control" />
+                <span asp-validation-for="AlbumPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AlbumImage" class="control-label"></label>
+                <input asp-for="AlbumImage" class="form-control" />
+                <span asp-validation-for="AlbumImage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ArtistId">Artist Name</label>
+                <select asp-for="ArtistId" class="form-control" asp-items="@(new SelectList(ViewBag.Artists, "ArtistId", "ArtistName"))">
+                    <option value="">-- Select Artist --</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

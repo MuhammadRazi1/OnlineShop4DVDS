@@ -26,6 +26,8 @@ namespace OnlineShop4DVDS.Models
         [Range(100, 100000, ErrorMessage = "Price must be between 100 and 100000")]
         public decimal AlbumPrice { get; set; }
 
+        public string? AlbumImage { get; set; }
+
         [ForeignKey("ArtistId")]
         public virtual Artist? Artist { get; set; }
 

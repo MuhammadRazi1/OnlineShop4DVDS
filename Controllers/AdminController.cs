@@ -198,5 +198,36 @@ namespace OnlineShop4DVDS.Controllers
 
             return RedirectToAction("ArtistView");
         }
+
+        //Album View
+
+        public IActionResult AlbumView()
+        {
+            var albums = sqlContext.Albums.Include(a => a.Artist).ToList();
+            return View(albums);
+        }
+
+        //Album Insert
+
+        public IActionResult AlbumInsert()
+        {
+            ViewBag.Artists = sqlContext.Artists.ToList();
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AlbumInsert(Album album)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Artists = sqlContext.Artists.ToList();
+                return View("AlbumInsert");
+            }
+
+            sqlContext.Albums.Add(album);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
     }
 }
