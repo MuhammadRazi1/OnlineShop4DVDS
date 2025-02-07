@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineShop4DVDS.Models
 {
@@ -6,6 +7,9 @@ namespace OnlineShop4DVDS.Models
     {
         [Key]
         public int AlbumId { get; set; }
+
+        [Required(ErrorMessage = "Artist Id is required")]
+        public int ArtistId { get; set; }
 
         [Required(ErrorMessage = "Album title is required")]
         [StringLength(100, ErrorMessage = "Title must be less than 100 characters.")]
@@ -21,6 +25,9 @@ namespace OnlineShop4DVDS.Models
         [Required(ErrorMessage = "Price is required")]
         [Range(100, 100000, ErrorMessage = "Price must be between 100 and 100000")]
         public decimal AlbumPrice { get; set; }
+
+        [ForeignKey("ArtistId")]
+        public virtual Artist? Artist { get; set; }
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }

@@ -30,5 +30,7 @@ namespace OnlineShop4DVDS.Models
 
         [ForeignKey("ArtistRoleId")]
         public virtual ArtistRole? ArtistRole { get; set; }
+
+        public ICollection<Album> Albums { get; set; } = new List<Album>();
     }
 }

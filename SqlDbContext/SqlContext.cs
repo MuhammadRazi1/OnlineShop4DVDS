@@ -22,8 +22,13 @@ namespace OnlineShop4DVDS.SqlDbContext
 
             modelBuilder.Entity<Artist>()
                 .HasOne(a => a.ArtistRole)
-                .WithMany()
+                .WithMany() 
                 .HasForeignKey(a => a.ArtistRoleId);
+
+            modelBuilder.Entity<Album>()
+                .HasOne(a => a.Artist)
+                .WithMany(ar => ar.Albums)
+                .HasForeignKey(a => a.ArtistId);
         }
     }
 }
