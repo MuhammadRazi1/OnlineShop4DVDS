@@ -227,7 +227,67 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.Albums.Add(album);
             sqlContext.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("AlbumView");
+        }
+
+        //Album Update
+
+        public IActionResult AlbumUpdate(int id)
+        {
+            var album = sqlContext.Albums.Include(a => a.Artist).FirstOrDefault(a => a.AlbumId == id);
+            if(album == null)
+            {
+                return View("AlbumView");
+            }
+
+            ViewBag.Artists = new SelectList(sqlContext.Artists.ToList(), "ArtistId", "ArtistName", album.ArtistId);
+
+            return View(album);
+        }
+
+        [HttpPost]
+        public IActionResult AlbumUpdate(Album album)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Artists = new SelectList(sqlContext.Artists.ToList(), "ArtistId", "ArtistName", album.ArtistId);
+                return View(album);
+            }
+
+            var existingAlbum = sqlContext.Albums.FirstOrDefault(a => a.AlbumId == album.AlbumId);
+            if(existingAlbum == null)
+            {
+                return NotFound();
+            }
+
+            existingAlbum.AlbumTitle = album.AlbumTitle;
+            existingAlbum.AlbumReleaseDate = album.AlbumReleaseDate;
+            existingAlbum.AlbumDescription = album.AlbumDescription;
+            existingAlbum.AlbumPrice = album.AlbumPrice;
+            existingAlbum.AlbumImage = album.AlbumImage;
+            existingAlbum.ArtistId = album.ArtistId;
+
+            sqlContext.Albums.Update(existingAlbum);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("AlbumView");
+        }
+
+        //Album Delete
+
+        [HttpPost]
+        public IActionResult AlbumDelete(int id)
+        {
+            var album = sqlContext.Albums.FirstOrDefault(a => a.AlbumId == id);
+            if(album == null)
+            {
+                return View("AlbumView");
+            }
+
+            sqlContext.Albums.Remove(album);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("AlbumView");
         }
     }
 }
