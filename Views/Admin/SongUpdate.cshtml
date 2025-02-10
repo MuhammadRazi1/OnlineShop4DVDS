@@ -1,18 +1,19 @@
 ﻿@model OnlineShop4DVDS.Models.Song
 
 @{
-    ViewData["Title"] = "SongInsert";
+    ViewData["Title"] = "SongUpdate";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
 
-<h1>SongInsert</h1>
+<h1>SongUpdate</h1>
 
 <h4>Song</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="SongInsert" method="post">
+        <form asp-action="SongUpdate" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="SongId" />
             <div class="form-group">
                 <label asp-for="SongName" class="control-label"></label>
                 <input asp-for="SongName" class="form-control" />
@@ -24,19 +25,17 @@
                 <span asp-validation-for="SongFilePath" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="CategoryId">Category</label>
-                <select asp-for="CategoryId" class="form-control" asp-items="@(new SelectList(ViewBag.Categories, "CategoryId", "CategoryName"))">
-                    <option value="">-- Select Category --</option>
-                </select>
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class="form-control" asp-items="@ViewBag.Categories"></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="AlbumId">Album</label>
-                <select asp-for="AlbumId" class="form-control" asp-items="@(new SelectList(ViewBag.Albums, "AlbumId", "AlbumTitle"))">
-                    <option value="">-- Select Album --</option>
-                </select>
+                <label asp-for="AlbumId" class="control-label"></label>
+                <select asp-for="AlbumId" class="form-control" asp-items="@ViewBag.Albums"></select>
+                <span asp-validation-for="AlbumId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" />
             </div>
         </form>
     </div>

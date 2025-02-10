@@ -12,7 +12,7 @@ using OnlineShop4DVDS.SqlDbContext;
 namespace OnlineShop4DVDS.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    [Migration("20250208063308_first")]
+    [Migration("20250210185947_first")]
     partial class first
     {
         /// <inheritdoc />
@@ -182,6 +182,37 @@ namespace OnlineShop4DVDS.Migrations
                     b.ToTable("Reviews");
                 });
 
+            modelBuilder.Entity("OnlineShop4DVDS.Models.Song", b =>
+                {
+                    b.Property<int>("SongId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SongId"));
+
+                    b.Property<int>("AlbumId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SongFilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SongName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("SongId");
+
+                    b.HasIndex("AlbumId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Songs");
+                });
+
             modelBuilder.Entity("OnlineShop4DVDS.Models.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -253,14 +284,40 @@ namespace OnlineShop4DVDS.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("OnlineShop4DVDS.Models.Song", b =>
+                {
+                    b.HasOne("OnlineShop4DVDS.Models.Album", "Album")
+                        .WithMany("Songs")
+                        .HasForeignKey("AlbumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OnlineShop4DVDS.Models.Category", "Category")
+                        .WithMany("Songs")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Album");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("OnlineShop4DVDS.Models.Album", b =>
                 {
                     b.Navigation("Reviews");
+
+                    b.Navigation("Songs");
                 });
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.Artist", b =>
                 {
                     b.Navigation("Albums");
+                });
+
+            modelBuilder.Entity("OnlineShop4DVDS.Models.Category", b =>
+                {
+                    b.Navigation("Songs");
                 });
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.User", b =>

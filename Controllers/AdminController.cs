@@ -144,7 +144,7 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult ArtistUpdate(int id)
         {
             var artist = sqlContext.Artists.Include(a => a.ArtistRole).FirstOrDefault(c => c.ArtistId == id);
-            if(artist == null)
+            if (artist == null)
             {
                 return View("ArtistView");
             }
@@ -164,7 +164,7 @@ namespace OnlineShop4DVDS.Controllers
             }
 
             var existingArtist = sqlContext.Artists.FirstOrDefault(a => a.ArtistId == artist.ArtistId);
-            if(existingArtist == null)
+            if (existingArtist == null)
             {
                 return NotFound();
             }
@@ -188,7 +188,7 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult ArtistDelete(int id)
         {
             var artist = sqlContext.Artists.FirstOrDefault(a => a.ArtistId == id);
-            if(artist == null)
+            if (artist == null)
             {
                 return NotFound();
             }
@@ -235,7 +235,7 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult AlbumUpdate(int id)
         {
             var album = sqlContext.Albums.Include(a => a.Artist).FirstOrDefault(a => a.AlbumId == id);
-            if(album == null)
+            if (album == null)
             {
                 return View("AlbumView");
             }
@@ -255,7 +255,7 @@ namespace OnlineShop4DVDS.Controllers
             }
 
             var existingAlbum = sqlContext.Albums.FirstOrDefault(a => a.AlbumId == album.AlbumId);
-            if(existingAlbum == null)
+            if (existingAlbum == null)
             {
                 return NotFound();
             }
@@ -279,7 +279,7 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult AlbumDelete(int id)
         {
             var album = sqlContext.Albums.FirstOrDefault(a => a.AlbumId == id);
-            if(album == null)
+            if (album == null)
             {
                 return View("AlbumView");
             }
@@ -290,12 +290,23 @@ namespace OnlineShop4DVDS.Controllers
             return RedirectToAction("AlbumView");
         }
 
+        //Song View
+
+        public IActionResult SongView()
+        {
+            var songs = sqlContext.Songs.Include(c => c.Category).Include(a => a.Album).ToList();
+            return View(songs);
+        }
+
         //Song Insert
 
         public IActionResult SongInsert()
         {
-            ViewBag.Categories = sqlContext.Categories.ToList();
-            ViewBag.Albums = sqlContext.Albums.ToList();
+            var categories = sqlContext.Categories.ToList();
+            var albums = sqlContext.Albums.ToList();
+
+            ViewBag.Categories = categories;
+            ViewBag.Albums = albums;
             return View();
         }
 
@@ -306,13 +317,73 @@ namespace OnlineShop4DVDS.Controllers
             {
                 ViewBag.Categories = sqlContext.Categories.ToList();
                 ViewBag.Albums = sqlContext.Albums.ToList();
-                return View("SongInsert");
+                return View(song);
             }
 
             sqlContext.Songs.Add(song);
             sqlContext.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("SongView");
+        }
+
+        //Song Update
+
+        public IActionResult SongUpdate(int id)
+        {
+            var song = sqlContext.Songs.Include(c => c.Category).Include(a => a.Album).FirstOrDefault(s => s.SongId == id);
+            if (song == null)
+            {
+                return View("SongView");
+            }
+
+            ViewBag.Categories = new SelectList(sqlContext.Categories.ToList(), "CategoryId", "CategoryName", song.CategoryId);
+            ViewBag.Albums = new SelectList(sqlContext.Albums.ToList(), "AlbumId", "AlbumTitle", song.AlbumId);
+
+            return View(song);
+        }
+
+        [HttpPost]
+        public IActionResult SongUpdate(Song song)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = new SelectList(sqlContext.Categories.ToList(), "CategoryId", "CategoryName", song.CategoryId);
+                ViewBag.Albums = new SelectList(sqlContext.Albums.ToList(), "AlbumId", "AlbumTitle", song.AlbumId);
+                return View(song);
+            }
+
+            var existingSong = sqlContext.Songs.FirstOrDefault(s => s.SongId == song.SongId);
+            if (existingSong == null)
+            {
+                return NotFound();
+            }
+
+            existingSong.SongName = song.SongName;
+            existingSong.SongFilePath = song.SongFilePath;
+            existingSong.CategoryId = song.CategoryId;
+            existingSong.AlbumId = song.AlbumId;
+
+            sqlContext.Songs.Update(existingSong);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("SongView");
+        }
+
+        //Song Delete
+
+        [HttpPost]
+        public IActionResult SongDelete(int id)
+        {
+            var song = sqlContext.Songs.FirstOrDefault(s => s.SongId == id);
+            if (song == null)
+            {
+                return View("SongView");
+            }
+
+            sqlContext.Songs.Remove(song);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("SongView");
         }
     }
 }
