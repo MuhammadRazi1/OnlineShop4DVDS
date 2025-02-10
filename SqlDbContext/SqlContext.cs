@@ -16,6 +16,7 @@ namespace OnlineShop4DVDS.SqlDbContext
         public DbSet<Artist> Artists { get; set; }
         public DbSet<Album> Albums { get; set; }
         public DbSet<Review> Reviews { get; set; }
+        public DbSet<Song> Songs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +42,16 @@ namespace OnlineShop4DVDS.SqlDbContext
                 .HasOne(r => r.User)
                 .WithMany(u => u.Reviews)
                 .HasForeignKey(r => r.UserId);
+
+            modelBuilder.Entity<Song>()
+                .HasOne(c => c.Category)
+                .WithMany(s => s.Songs)
+                .HasForeignKey(c => c.CategoryId);
+
+            modelBuilder.Entity<Song>()
+                .HasOne(a => a.Album)
+                .WithMany(s => s.Songs)
+                .HasForeignKey(a => a.AlbumId);
         }
     }
 }

@@ -32,5 +32,7 @@ namespace OnlineShop4DVDS.Models
         public virtual Artist? Artist { get; set; }
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+        public ICollection<Song> Songs { get; set; } = new List<Song>();
     }
 }

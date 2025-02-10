@@ -55,7 +55,7 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
             ModelState.Clear();
 
-            return View("Category");
+            return View("CategoryView");
         }
 
         //Category Update
@@ -288,6 +288,31 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
 
             return RedirectToAction("AlbumView");
+        }
+
+        //Song Insert
+
+        public IActionResult SongInsert()
+        {
+            ViewBag.Categories = sqlContext.Categories.ToList();
+            ViewBag.Albums = sqlContext.Albums.ToList();
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SongInsert(Song song)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = sqlContext.Categories.ToList();
+                ViewBag.Albums = sqlContext.Albums.ToList();
+                return View("SongInsert");
+            }
+
+            sqlContext.Songs.Add(song);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("Index");
         }
     }
 }

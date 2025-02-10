@@ -10,5 +10,7 @@ namespace OnlineShop4DVDS.Models
         [Required]
         [StringLength(100)]
         public string CategoryName { get; set; }
+
+        public ICollection<Song> Songs { get; set; } = new List<Song>();
     }
 }
