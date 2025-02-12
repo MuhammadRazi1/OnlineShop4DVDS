@@ -8,8 +8,9 @@ namespace OnlineShop4DVDS.Models
         [Key]
         public int ReviewId { get; set; }
 
-        [Required(ErrorMessage = "Album Id is required")]
-        public int AlbumId { get; set; }
+        public int? AlbumId { get; set; }
+
+        public int? GameId { get; set; }
 
         [Required(ErrorMessage = "User Id is required")]
         public int UserId { get; set; }
@@ -26,6 +27,9 @@ namespace OnlineShop4DVDS.Models
 
         [ForeignKey("AlbumId")]
         public virtual Album? Album { get; set; }
+
+        [ForeignKey("GameId")]
+        public virtual Game? Game { get; set; }
 
         [ForeignKey("UserId")]
         public virtual User? User { get; set; }

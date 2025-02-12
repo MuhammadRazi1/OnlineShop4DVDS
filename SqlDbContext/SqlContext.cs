@@ -17,6 +17,12 @@ namespace OnlineShop4DVDS.SqlDbContext
         public DbSet<Album> Albums { get; set; }
         public DbSet<Review> Reviews { get; set; }
         public DbSet<Song> Songs { get; set; }
+        public DbSet<Game> Games { get; set; }
+        public DbSet<Developer> Developers { get; set; }
+        public DbSet<Genre> Genres { get; set; }
+        public DbSet<Platform> Platforms { get; set; }
+        public DbSet<GameGenre> GameGenres { get; set; }
+        public DbSet<GamePlatform> GamePlatforms { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,7 +42,8 @@ namespace OnlineShop4DVDS.SqlDbContext
             modelBuilder.Entity<Review>()
                 .HasOne(r => r.Album)
                 .WithMany(a => a.Reviews)
-                .HasForeignKey(r => r.AlbumId);
+                .HasForeignKey(r => r.AlbumId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Review>()
                 .HasOne(r => r.User)
@@ -52,6 +59,49 @@ namespace OnlineShop4DVDS.SqlDbContext
                 .HasOne(a => a.Album)
                 .WithMany(s => s.Songs)
                 .HasForeignKey(a => a.AlbumId);
+
+            modelBuilder.Entity<Game>()
+                .HasOne(d => d.Developer)
+                .WithMany(g => g.Games)
+                .HasForeignKey(g => g.DeveloperId);
+
+            modelBuilder.Entity<GameGenre>()
+                .HasKey(gg => new { gg.GameId, gg.GenreId });
+
+            modelBuilder.Entity<GameGenre>()
+                .HasOne(g => g.Game)
+                .WithMany(gg => gg.GameGenres)
+                .HasForeignKey(g => g.GameId);
+
+            modelBuilder.Entity<GameGenre>()
+                .HasOne(g => g.Genre)
+                .WithMany(gg => gg.GameGenres)
+                .HasForeignKey(g => g.GenreId);
+
+            modelBuilder.Entity<GamePlatform>()
+                .HasKey(gp => new { gp.GameId, gp.PlatformId });
+
+            modelBuilder.Entity<GamePlatform>()
+                .HasOne(g => g.Game)
+                .WithMany(gp => gp.GamePlatforms)
+                .HasForeignKey(g => g.GameId);
+
+            modelBuilder.Entity<GamePlatform>()
+                .HasOne(p => p.Platform)
+                .WithMany(gp => gp.GamePlatforms)
+                .HasForeignKey(p => p.PlatformId);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Game)
+                .WithMany(g => g.Reviews)
+                .HasForeignKey(r => r.GameId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

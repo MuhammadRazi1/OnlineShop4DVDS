@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineShop4DVDS.SqlDbContext;
 
@@ -11,9 +12,11 @@ using OnlineShop4DVDS.SqlDbContext;
 namespace OnlineShop4DVDS.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    partial class SqlContextModelSnapshot : ModelSnapshot
+    [Migration("20250212194400_second")]
+    partial class second
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -276,10 +279,7 @@ namespace OnlineShop4DVDS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReviewId"));
 
-                    b.Property<int?>("AlbumId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("GameId")
+                    b.Property<int>("AlbumId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ReviewDate")
@@ -298,8 +298,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.HasKey("ReviewId");
 
                     b.HasIndex("AlbumId");
-
-                    b.HasIndex("GameId");
 
                     b.HasIndex("UserId");
 
@@ -443,22 +441,16 @@ namespace OnlineShop4DVDS.Migrations
                     b.HasOne("OnlineShop4DVDS.Models.Album", "Album")
                         .WithMany("Reviews")
                         .HasForeignKey("AlbumId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("OnlineShop4DVDS.Models.Game", "Game")
-                        .WithMany("Reviews")
-                        .HasForeignKey("GameId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("OnlineShop4DVDS.Models.User", "User")
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Album");
-
-                    b.Navigation("Game");
 
                     b.Navigation("User");
                 });
@@ -509,8 +501,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.Navigation("GameGenres");
 
                     b.Navigation("GamePlatforms");
-
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.Genre", b =>

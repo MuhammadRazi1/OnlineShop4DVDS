@@ -42,7 +42,7 @@ namespace OnlineShop4DVDS.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View("Category");
+                return View("CategoryInsert");
             }
 
             if (sqlContext.Categories.Any(c => c.CategoryName.ToLower() == category.CategoryName.ToLower()))
@@ -55,7 +55,7 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
             ModelState.Clear();
 
-            return View("CategoryView");
+            return RedirectToAction("CategoryView");
         }
 
         //Category Update
@@ -76,7 +76,7 @@ namespace OnlineShop4DVDS.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View("CategoryView");
+                return View(category);
             }
 
             var existingCategory = sqlContext.Categories.FirstOrDefault(c => c.CategoryId == category.CategoryId);
@@ -86,6 +86,7 @@ namespace OnlineShop4DVDS.Controllers
             }
 
             existingCategory.CategoryName = category.CategoryName;
+            sqlContext.Categories.Update(existingCategory);
             sqlContext.SaveChanges();
 
             return RedirectToAction("CategoryView");
@@ -130,6 +131,12 @@ namespace OnlineShop4DVDS.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.ArtistRoles = sqlContext.ArtistRoles.ToList();
+                return View("ArtistInsert");
+            }
+
+            if(sqlContext.Artists.Any(a => a.ArtistName.ToLower() == artist.ArtistName.ToLower()))
+            {
+                ModelState.AddModelError("ArtistName", "Artist already exists");
                 return View("ArtistInsert");
             }
 
@@ -221,6 +228,12 @@ namespace OnlineShop4DVDS.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Artists = sqlContext.Artists.ToList();
+                return View("AlbumInsert");
+            }
+
+            if(sqlContext.Albums.Any(a => a.AlbumTitle.ToLower() == album.AlbumTitle.ToLower()))
+            {
+                ModelState.AddModelError("AlbumTitle", "Album already exists");
                 return View("AlbumInsert");
             }
 
@@ -320,6 +333,12 @@ namespace OnlineShop4DVDS.Controllers
                 return View(song);
             }
 
+            if(sqlContext.Songs.Any(s => s.SongName.ToLower() == song.SongName.ToLower()))
+            {
+                ModelState.AddModelError("SongName", "Song already exists");
+                return View(song);
+            }
+
             sqlContext.Songs.Add(song);
             sqlContext.SaveChanges();
 
@@ -384,6 +403,170 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
 
             return RedirectToAction("SongView");
+        }
+
+        //Developer View
+
+        public IActionResult DeveloperView()
+        {
+            var developers = sqlContext.Developers.ToList();
+            return View(developers);
+        }
+
+        //Developer Insert
+
+        public IActionResult DeveloperInsert()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DeveloperInsert(Developer developer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("DeveloperInsert");
+            }
+
+            if(sqlContext.Developers.Any(d => d.DeveloperName.ToLower() == developer.DeveloperName.ToLower()))
+            {
+                ModelState.AddModelError("DeveloperName", "Developer already exists");
+                return View("DeveloperInsert");
+            }
+
+            sqlContext.Developers.Add(developer);
+            sqlContext.SaveChanges();
+            return RedirectToAction("DeveloperView");
+        }
+
+        //Developer Update
+
+        public IActionResult DeveloperUpdate(int id)
+        {
+            var developer = sqlContext.Developers.FirstOrDefault(d => d.DeveloperId == id);
+            return View(developer);
+        }
+
+        [HttpPost]
+        public IActionResult DeveloperUpdate(Developer developer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(developer);
+            }
+
+            if(sqlContext.Developers.Any(d => d.DeveloperName.ToLower() == developer.DeveloperName.ToLower()))
+            {
+                ModelState.AddModelError("DeveloperName", "Developer already exists");
+                return View(developer);
+            }
+
+            var existingDeveloper = sqlContext.Developers.FirstOrDefault(d => d.DeveloperId == developer.DeveloperId);
+
+            existingDeveloper.DeveloperName = developer.DeveloperName;
+
+            sqlContext.Developers.Update(existingDeveloper);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("DeveloperView");
+        }
+
+        //Developer Delete
+
+        [HttpPost]
+        public IActionResult DeveloperDelete(int id)
+        {
+            var developer = sqlContext.Developers.FirstOrDefault(d => d.DeveloperId == id);
+            if(developer == null)
+            {
+                return RedirectToAction("DeveloperView");
+            }
+
+            sqlContext.Developers.Remove(developer);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("DeveloperView");
+        }
+
+        //Genre View
+
+        public IActionResult GenreView()
+        {
+            var genres = sqlContext.Genres.ToList();
+            return View(genres);
+        }
+
+        //Genre Insert
+
+        public IActionResult GenreInsert()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult GenreInsert(Genre genre)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("GenreInsert");
+            }
+
+            if (sqlContext.Genres.Any(g => g.GenreName.ToLower() == genre.GenreName.ToLower()))
+            {
+                ModelState.AddModelError("GenreName", "Genre already exists");
+                return View("GenreInsert");
+            }
+
+            sqlContext.Genres.Add(genre);
+            sqlContext.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        //Genre Update
+
+        public IActionResult GenreUpdate(int id)
+        {
+            var genre = sqlContext.Genres.FirstOrDefault(g => g.GenreId == id);
+            return View(genre);
+        }
+
+        [HttpPost]
+        public IActionResult GenreUpdate(Genre genre)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(genre);
+            }
+
+            if(sqlContext.Genres.Any(g => g.GenreName.ToLower() == genre.GenreName.ToLower()))
+            {
+                ModelState.AddModelError("GenreName", "Genre already exists");
+                return View(genre);
+            }
+
+            var existingGenre = sqlContext.Genres.FirstOrDefault(e => e.GenreId ==  genre.GenreId);
+
+            existingGenre.GenreName = genre.GenreName;
+
+            sqlContext.Genres.Update(existingGenre);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("GameView");
+        }
+
+        //Genre Delete
+
+        public IActionResult GenreDelete(int id)
+        {
+            var genre = sqlContext.Genres.FirstOrDefault(g => g.GenreId == id);
+            if(genre == null)
+            {
+                return RedirectToAction("GenreView");
+            }
+
+            sqlContext.Genres.Remove(genre);
+            sqlContext.SaveChanges();
+            return RedirectToAction("GenreView");
         }
     }
 }
