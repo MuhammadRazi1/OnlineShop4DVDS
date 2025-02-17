@@ -1,0 +1,84 @@
+﻿@model OnlineShop4DVDS.Models.Game
+
+@{
+    ViewData["Title"] = "GameInsert";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>GameInsert</h1>
+
+<h4>Game</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="GameInsert" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DeveloperId" class="control-label">Developer</label>
+                <select asp-for="DeveloperId" class="form-control" asp-items="@(new SelectList(ViewBag.Developers, "DeveloperId", "DeveloperName"))">
+                    <option value="">-- Select Developer --</option>
+                </select>
+                <span asp-validation-for="DeveloperId" class="text-red"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GameName" class="control-label"></label>
+                <input asp-for="GameName" class="form-control" />
+                <span asp-validation-for="GameName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GameDescription" class="control-label"></label>
+                <input asp-for="GameDescription" class="form-control" />
+                <span asp-validation-for="GameDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GamePrice" class="control-label"></label>
+                <input asp-for="GamePrice" class="form-control" />
+                <span asp-validation-for="GamePrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GameReleaseDate" class="control-label"></label>
+                <input asp-for="GameReleaseDate" class="form-control" />
+                <span asp-validation-for="GameReleaseDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GameFilePath" class="control-label"></label>
+                <input asp-for="GameFilePath" class="form-control" />
+                <span asp-validation-for="GameFilePath" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GameImage" class="control-label"></label>
+                <input asp-for="GameImage" class="form-control" />
+                <span asp-validation-for="GameImage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Genres</label>
+                @foreach(var genre in ViewBag.Genres as List<Genre>){
+                    <div>
+                        <input type="checkbox" name="SelectedGenreIds" value="@genre.GenreId"/>
+                        <label>@genre.GenreName</label>
+                    </div>
+                }
+            </div>
+            <div class="form-group">
+                <label>Platforms</label>
+                @foreach(var platform in ViewBag.Platforms as List<Platform>){
+                    <div>
+                        <input type="checkbox" name="SelectedPlatformIds" value="@platform.PlatformId"/>
+                        <label>@platform.PlatformName</label>
+                    </div>
+                    }
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

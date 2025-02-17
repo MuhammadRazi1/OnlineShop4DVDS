@@ -1,0 +1,87 @@
+﻿@model IEnumerable<OnlineShop4DVDS.Models.Game>
+
+@{
+    ViewData["Title"] = "GameView";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>GameView</h1>
+
+<p>
+    <a asp-action="GameInsert">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.GameName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GameDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GamePrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GameReleaseDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GameFilePath)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GameImage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Developer)
+            </th>
+            <th>
+                Game Genre
+            </th>
+            <th>
+                Game Platform
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.GameName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GameDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GamePrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GameReleaseDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GameFilePath)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.GameImage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Developer.DeveloperName)
+            </td>
+            <td>
+                @foreach(var gameGenre in item.GameGenres){
+                    <span>@gameGenre.Genre.GenreName</span>
+                }
+            </td>
+            <td>
+                @foreach(var gamePlatform in item.GamePlatforms){
+                    <span>@gamePlatform.Platform.PlatformName</span>
+                }
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.GameId">Edit</a> |
+                <a asp-action="Delete" asp-route-id="@item.GameId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
