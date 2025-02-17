@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Humanizer.Localisation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop4DVDS.Models;
@@ -519,7 +520,7 @@ namespace OnlineShop4DVDS.Controllers
 
             sqlContext.Genres.Add(genre);
             sqlContext.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("GenreView");
         }
 
         //Genre Update
@@ -567,6 +568,86 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.Genres.Remove(genre);
             sqlContext.SaveChanges();
             return RedirectToAction("GenreView");
+        }
+
+        //Platform View
+
+        public IActionResult PlatformView()
+        {
+            var platforms = sqlContext.Platforms.ToList();
+            return View(platforms);
+        }
+
+        //Platform Insert
+
+        public IActionResult PlatformInsert()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult PlatformInsert(Platform platform)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("PlatformInsert");
+            }
+
+            if(sqlContext.Platforms.Any(p => p.PlatformName.ToLower() == platform.PlatformName.ToLower()))
+            {
+                ModelState.AddModelError("PlatformName", "Platform already exists");
+                return View(platform);
+            }
+
+            sqlContext.Platforms.Add(platform);
+            sqlContext.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        //Platform Update
+
+        public IActionResult PlatformUpdate(int id)
+        {
+            var platform = sqlContext.Platforms.FirstOrDefault(p => p.PlatformId == id);
+            return View(platform);
+        }
+
+        [HttpPost]
+        public IActionResult PlatformUpdate(Platform platform)
+        {
+            if(!ModelState.IsValid)
+            {
+                return View(platform);
+            }
+
+            if(sqlContext.Platforms.Any(p => p.PlatformName.ToLower() == platform.PlatformName.ToLower()))
+            {
+                ModelState.AddModelError("PlatformName", "Platform already exists");
+                return View(platform);
+            }
+
+            var existingPlatform = sqlContext.Platforms.FirstOrDefault(p => p.PlatformId == platform.PlatformId);
+
+            existingPlatform.PlatformName = platform.PlatformName;
+
+            sqlContext.Platforms.Update(existingPlatform);
+            sqlContext.SaveChanges();
+            return RedirectToAction("PlatformView");
+        }
+
+        //Platform Delete
+
+        [HttpPost]
+        public IActionResult PlatformDelete(int id)
+        {
+            var platform = sqlContext.Platforms.FirstOrDefault(p => p.PlatformId == id);
+            if (platform == null)
+            {
+                return RedirectToAction("PlatformView");
+            }
+            sqlContext.Platforms.Remove(platform);
+            sqlContext.SaveChanges();
+            return RedirectToAction("PlatformView");
         }
     }
 }
