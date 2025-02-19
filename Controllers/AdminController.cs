@@ -697,5 +697,111 @@ namespace OnlineShop4DVDS.Controllers
 
             return RedirectToAction("Index");
         }
+
+        //Game Update
+
+        public IActionResult GameUpdate(int id)
+        {
+            var game = sqlContext.Games
+                .Include(d => d.Developer)
+                .Include(gp => gp.GamePlatforms)
+                    .ThenInclude(p => p.Platform)
+                .Include(gg => gg.GameGenres)
+                    .ThenInclude(g => g.Genre)
+                .FirstOrDefault(g => g.GameId == id);
+
+            if(game == null)
+            {
+                return RedirectToAction("GameView");
+            }
+
+            ViewBag.Developers = new SelectList(sqlContext.Developers.ToList(), "DeveloperId", "DeveloperName", game.DeveloperId);
+            ViewBag.Genres = sqlContext.Genres.ToList();
+            ViewBag.Platforms = sqlContext.Platforms.ToList();
+
+            ViewBag.SelectedGenreIds = game.GameGenres.Select(g => g.GenreId).ToList();
+            ViewBag.SelectedPlatformIds = game.GamePlatforms.Select(p => p.PlatformId).ToList();
+
+            return View(game);
+        }
+
+        [HttpPost]
+        public IActionResult GameUpdate(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Developers = new SelectList(sqlContext.Developers.ToList(), "DeveloperId", "DeveloperName", game.DeveloperId);
+                ViewBag.Genres = sqlContext.Genres.ToList();
+                ViewBag.Platforms = sqlContext.Platforms.ToList();
+                ViewBag.SelectedGenreIds = SelectedGenreIds;
+                ViewBag.SelectedPlatformIds = SelectedPlatformIds;
+                return View(game);
+            }
+
+            var existingGame = sqlContext.Games
+                .Include(gg => gg.GameGenres)
+                .Include(gp => gp.GamePlatforms)
+                .FirstOrDefault(g => g.GameId == game.GameId);
+
+            if(existingGame == null)
+            {
+                return View(game);
+            }
+
+            existingGame.DeveloperId = game.DeveloperId;
+            existingGame.GameName = game.GameName;
+            existingGame.GameDescription = game.GameDescription;
+            existingGame.GamePrice = game.GamePrice;
+            existingGame.GameReleaseDate = game.GameReleaseDate;
+            existingGame.GameFilePath = game.GameFilePath;
+            existingGame.GameImage = game.GameImage;
+
+            existingGame.GameGenres.Clear();
+            foreach(var genreId in SelectedGenreIds)
+            {
+                var genre = sqlContext.Genres.Find(genreId);
+                if(genre != null)
+                {
+                    existingGame.GameGenres.Add(new GameGenre { Genre = genre });
+                }
+            }
+
+            existingGame.GamePlatforms.Clear();
+            foreach(var platformId in SelectedPlatformIds)
+            {
+                var platform = sqlContext.Platforms.Find(platformId);
+                if(platform != null)
+                {
+                    existingGame.GamePlatforms.Add(new GamePlatform { Platform = platform });
+                }
+            }
+
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("GameView");
+        }
+
+        //Game Delete
+
+        [HttpPost]
+        public IActionResult GameDelete(int id)
+        {
+            var game = sqlContext.Games
+                .Include(gg => gg.GameGenres)
+                .Include(gp => gp.GamePlatforms)
+                .FirstOrDefault(g => g.GameId == id);
+
+            if(game == null)
+            {
+                return NotFound();
+            }
+
+            sqlContext.GameGenres.RemoveRange(game.GameGenres);
+            sqlContext.GamePlatforms.RemoveRange(game.GamePlatforms);
+            sqlContext.Games.Remove(game);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("GameView");
+        }
     }
 }

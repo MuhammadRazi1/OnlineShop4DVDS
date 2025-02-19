@@ -12,6 +12,8 @@ namespace OnlineShop4DVDS.Models
 
         public int? GameId { get; set; }
 
+        public int? MovieId { get; set; }
+
         [Required(ErrorMessage = "User Id is required")]
         public int UserId { get; set; }
 
@@ -30,6 +32,9 @@ namespace OnlineShop4DVDS.Models
 
         [ForeignKey("GameId")]
         public virtual Game? Game { get; set; }
+
+        [ForeignKey("MovieId")]
+        public virtual Movie? Movie { get; set; }
 
         [ForeignKey("UserId")]
         public virtual User? User { get; set; }
