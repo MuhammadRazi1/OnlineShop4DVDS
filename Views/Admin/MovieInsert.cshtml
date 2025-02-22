@@ -1,0 +1,73 @@
+﻿@model OnlineShop4DVDS.Models.Movie
+
+@{
+    ViewData["Title"] = "MovieInsert";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>MovieInsert</h1>
+
+<h4>Movie</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="MovieInsert" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MovieTitle" class="control-label"></label>
+                <input asp-for="MovieTitle" class="form-control" />
+                <span asp-validation-for="MovieTitle" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieDescription" class="control-label"></label>
+                <input asp-for="MovieDescription" class="form-control" />
+                <span asp-validation-for="MovieDescription" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieReleaseDate" class="control-label"></label>
+                <input asp-for="MovieReleaseDate" class="form-control" />
+                <span asp-validation-for="MovieReleaseDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MoviePrice" class="control-label"></label>
+                <input asp-for="MoviePrice" class="form-control" />
+                <span asp-validation-for="MoviePrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieFilePath" class="control-label"></label>
+                <input asp-for="MovieFilePath" class="form-control" />
+                <span asp-validation-for="MovieFilePath" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieImage" class="control-label"></label>
+                <input asp-for="MovieImage" class="form-control" />
+                <span asp-validation-for="MovieImage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MovieRating" class="control-label"></label>
+                <input asp-for="MovieRating" class="form-control" />
+                <span asp-validation-for="MovieRating" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Genres</label>
+                @foreach(var genre in ViewBag.Genres as List<Genre>){
+                    <div>
+                        <input type="checkbox" name="SelectedGenreIds" value="@genre.GenreId"/>
+                        <label>@genre.GenreName</label>
+                    </div>
+                    }
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

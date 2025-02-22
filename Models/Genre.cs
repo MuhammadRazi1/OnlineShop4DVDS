@@ -12,5 +12,7 @@ namespace OnlineShop4DVDS.Models
         public string GenreName { get; set; }
 
         public ICollection<GameGenre> GameGenres { get; set; } = new List<GameGenre>();
+
+        public ICollection<MovieGenre> MovieGenres { get; set; } = new List<MovieGenre>();
     }
 }

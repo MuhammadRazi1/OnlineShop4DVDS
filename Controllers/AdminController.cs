@@ -695,7 +695,7 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.Games.Add(game);
             sqlContext.SaveChanges();
 
-            return RedirectToAction("Index");
+            return RedirectToAction("GameView");
         }
 
         //Game Update
@@ -802,6 +802,131 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
 
             return RedirectToAction("GameView");
+        }
+
+        //Movie View
+
+        public IActionResult MovieView()
+        {
+            var movies = sqlContext.Movies
+                 .Include(mg => mg.MovieGenres)
+                     .ThenInclude(g => g.Genre)
+                 .ToList();
+
+            return View(movies);
+        }
+
+        ////Movie Insert
+        
+        public IActionResult MovieInsert()
+        {
+            ViewBag.Genres = sqlContext.Genres.ToList();
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult MovieInsert(Movie movie, List<int> SelectedGenreIds)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Genres = sqlContext.Genres.ToList();
+                return View(movie);
+            }
+
+            foreach (var genreId in SelectedGenreIds)
+            {
+                var genre = sqlContext.Genres.Find(genreId);
+                if (genre != null)
+                {
+                    movie.MovieGenres.Add(new MovieGenre { Genre = genre });
+                }
+            }
+
+            sqlContext.Movies.Add(movie);
+            sqlContext.SaveChanges();
+            return RedirectToAction("Index");
+        }
+
+        //Movie Update
+
+        public IActionResult MovieUpdate(int id)
+        {
+            var movie = sqlContext.Movies
+                 .Include(mg => mg.MovieGenres)
+                     .ThenInclude(g => g.Genre)
+                 .FirstOrDefault(m => m.MovieId == id);
+
+            if (movie == null)
+            {
+                return RedirectToAction("MovieView");
+            }
+
+            ViewBag.Genres = sqlContext.Genres.ToList();
+
+            ViewBag.SelectedGenreIds = movie.MovieGenres.Select(g => g.GenreId).ToList();
+
+            return View(movie);
+        }
+
+        [HttpPost]
+        public IActionResult MovieUpdate(Movie movie, List<int> SelectedGenreIds)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Genres = sqlContext.Genres.ToList();
+                ViewBag.SelectedGenreIds = SelectedGenreIds;
+                return View(movie);
+            }
+
+            var existingMovie = sqlContext.Movies
+                .Include(gg => gg.MovieGenres)
+                .FirstOrDefault(g => g.MovieId == movie.MovieId);
+
+            if (existingMovie == null)
+            {
+                return View(movie);
+            }
+
+            existingMovie.MovieTitle = movie.MovieTitle;
+            existingMovie.MovieDescription = movie.MovieDescription;
+            existingMovie.MovieReleaseDate = movie.MovieReleaseDate;
+            existingMovie.MoviePrice = movie.MoviePrice;
+            existingMovie.MovieFilePath = movie.MovieFilePath;
+            existingMovie.MovieImage = movie.MovieImage;
+            existingMovie.MovieRating = movie.MovieRating;
+
+            existingMovie.MovieGenres.Clear();
+            foreach (var genreId in SelectedGenreIds)
+            {
+                var genre = sqlContext.Genres.Find(genreId);
+                if (genre != null)
+                {
+                    existingMovie.MovieGenres.Add(new MovieGenre { Genre = genre });
+                }
+            }
+
+            sqlContext.SaveChanges();
+            return RedirectToAction("MovieView");
+        }
+
+        //Movie Delete
+
+        public IActionResult MovieDelete(int id)
+        {
+            var movie = sqlContext.Movies
+                .Include(gg => gg.MovieGenres)
+                .FirstOrDefault(g => g.MovieId == id);
+
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            sqlContext.MovieGenres.RemoveRange(movie.MovieGenres);
+            sqlContext.Movies.Remove(movie);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("MovieView");
         }
     }
 }

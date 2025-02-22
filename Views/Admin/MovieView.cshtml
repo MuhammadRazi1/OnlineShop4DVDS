@@ -1,0 +1,83 @@
+﻿@model IEnumerable<OnlineShop4DVDS.Models.Movie>
+
+@{
+    ViewData["Title"] = "MovieView";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>MovieView</h1>
+
+<p>
+    <a asp-action="MovieInsert">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.MovieTitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MovieDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MovieReleaseDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MoviePrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MovieFilePath)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MovieImage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MovieRating)
+            </th>
+            <th>
+                Genre
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovieTitle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovieDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovieReleaseDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MoviePrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovieFilePath)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovieImage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MovieRating)
+            </td>
+            <td>
+                    @foreach (var movieGenre in item.MovieGenres)
+                    {
+                        <span>@movieGenre.Genre.GenreName</span>
+                    }
+            </td>
+            <td>
+                <a asp-action="MovieUpdate" asp-route-id="@item.MovieId">Edit</a> |
+                    <form method="post" asp-action="MovieDelete" style="display: inline;">
+                        <input type="hidden" name="id" value="@item.MovieId" />
+                        <button type="submit" class="btn btn-link" onclick="return confirm('Are you sure you want to delete this movie?');">Delete</button>
+                    </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
