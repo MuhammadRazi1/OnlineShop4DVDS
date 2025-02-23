@@ -62,7 +62,7 @@
                 @Html.DisplayFor(modelItem => item.GameFilePath)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.GameImage)
+                    <img src="~/images/games/@Html.DisplayFor(modelItem => item.GameImage)" width="80"/>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Developer.DeveloperName)

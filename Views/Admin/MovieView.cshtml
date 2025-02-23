@@ -59,7 +59,7 @@
                 @Html.DisplayFor(modelItem => item.MovieFilePath)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.MovieImage)
+                    <img src="~/images/movies/@Html.DisplayFor(modelItem => item.MovieImage)" width="80"/>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MovieRating)

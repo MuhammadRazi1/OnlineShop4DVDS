@@ -11,11 +11,13 @@ namespace OnlineShop4DVDS.Controllers
     {
         SqlContext sqlContext;
         private readonly ILogger<AdminController> _logger;
+        IWebHostEnvironment env;
 
-        public AdminController(SqlContext sqlContext, ILogger<AdminController> logger)
+        public AdminController(SqlContext sqlContext, ILogger<AdminController> logger, IWebHostEnvironment env)
         {
             this.sqlContext = sqlContext;
             this._logger = logger;
+            this.env = env;
         }
 
         public IActionResult Index()
@@ -224,7 +226,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult AlbumInsert(Album album)
+        public IActionResult AlbumInsert(Album album, IFormFile AlbumImage)
         {
             if (!ModelState.IsValid)
             {
@@ -238,6 +240,13 @@ namespace OnlineShop4DVDS.Controllers
                 return View("AlbumInsert");
             }
 
+            string fileName = "";
+            string destination = Path.Combine(env.WebRootPath, "images/albums");
+            fileName = Guid.NewGuid().ToString()+"_"+AlbumImage.FileName;
+            string filePath = Path.Combine(destination, fileName);
+            AlbumImage.CopyTo(new FileStream(filePath, FileMode.Create));
+
+            album.AlbumImage = fileName;
             sqlContext.Albums.Add(album);
             sqlContext.SaveChanges();
 
@@ -260,7 +269,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult AlbumUpdate(Album album)
+        public IActionResult AlbumUpdate(Album album, IFormFile AlbumImage)
         {
             if (!ModelState.IsValid)
             {
@@ -280,6 +289,29 @@ namespace OnlineShop4DVDS.Controllers
             existingAlbum.AlbumPrice = album.AlbumPrice;
             existingAlbum.AlbumImage = album.AlbumImage;
             existingAlbum.ArtistId = album.ArtistId;
+
+            if (AlbumImage != null && AlbumImage.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(existingAlbum.AlbumImage))
+                {
+                    string oldImagePath = Path.Combine(env.WebRootPath, "images/albums", existingAlbum.AlbumImage);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                string fileName = Guid.NewGuid().ToString() + "_" + AlbumImage.FileName;
+                string destination = Path.Combine(env.WebRootPath, "images/albums");
+                string filePath = Path.Combine(destination, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    AlbumImage.CopyTo(stream);
+                }
+
+                existingAlbum.AlbumImage = fileName;
+            }
 
             sqlContext.Albums.Update(existingAlbum);
             sqlContext.SaveChanges();
@@ -658,7 +690,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult GameInsert(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds)
+        public IActionResult GameInsert(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds, IFormFile GameImage)
         {
             if (!ModelState.IsValid)
             {
@@ -691,6 +723,14 @@ namespace OnlineShop4DVDS.Controllers
                     game.GamePlatforms.Add(new GamePlatform { Platform = platform });
                 }
             }
+
+            string fileName = "";
+            string destination = Path.Combine(env.WebRootPath, "images/games");
+            fileName = Guid.NewGuid().ToString() + "_" + GameImage.FileName;
+            string filePath = Path.Combine(destination, fileName);
+            GameImage.CopyTo(new FileStream(filePath, FileMode.Create));
+
+            game.GameImage = fileName;
 
             sqlContext.Games.Add(game);
             sqlContext.SaveChanges();
@@ -726,7 +766,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult GameUpdate(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds)
+        public IActionResult GameUpdate(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds, IFormFile GameImage)
         {
             if (!ModelState.IsValid)
             {
@@ -774,6 +814,29 @@ namespace OnlineShop4DVDS.Controllers
                 {
                     existingGame.GamePlatforms.Add(new GamePlatform { Platform = platform });
                 }
+            }
+
+            if (GameImage != null && GameImage.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(existingGame.GameImage))
+                {
+                    string oldImagePath = Path.Combine(env.WebRootPath, "images/games", existingGame.GameImage);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                string fileName = Guid.NewGuid().ToString() + "_" + GameImage.FileName;
+                string destination = Path.Combine(env.WebRootPath, "images/games");
+                string filePath = Path.Combine(destination, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    GameImage.CopyTo(stream);
+                }
+
+                existingGame.GameImage = fileName;
             }
 
             sqlContext.SaveChanges();
@@ -825,7 +888,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult MovieInsert(Movie movie, List<int> SelectedGenreIds)
+        public IActionResult MovieInsert(Movie movie, List<int> SelectedGenreIds, IFormFile MovieImage)
         {
             if (!ModelState.IsValid)
             {
@@ -842,9 +905,17 @@ namespace OnlineShop4DVDS.Controllers
                 }
             }
 
+            string fileName = "";
+            string destination = Path.Combine(env.WebRootPath, "images/movies");
+            fileName = Guid.NewGuid().ToString() + "_" + MovieImage.FileName;
+            string filePath = Path.Combine(destination, fileName);
+            MovieImage.CopyTo(new FileStream(filePath, FileMode.Create));
+
+            movie.MovieImage = fileName;
+
             sqlContext.Movies.Add(movie);
             sqlContext.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("MovieView");
         }
 
         //Movie Update
@@ -869,7 +940,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult MovieUpdate(Movie movie, List<int> SelectedGenreIds)
+        public IActionResult MovieUpdate(Movie movie, List<int> SelectedGenreIds, IFormFile MovieImage)
         {
             if (!ModelState.IsValid)
             {
@@ -903,6 +974,29 @@ namespace OnlineShop4DVDS.Controllers
                 {
                     existingMovie.MovieGenres.Add(new MovieGenre { Genre = genre });
                 }
+            }
+
+            if (MovieImage != null && MovieImage.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(existingMovie.MovieImage))
+                {
+                    string oldImagePath = Path.Combine(env.WebRootPath, "images/movies", existingMovie.MovieImage);
+                    if (System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+                }
+
+                string fileName = Guid.NewGuid().ToString() + "_" + MovieImage.FileName;
+                string destination = Path.Combine(env.WebRootPath, "images/movies");
+                string filePath = Path.Combine(destination, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    MovieImage.CopyTo(stream);
+                }
+
+                existingMovie.MovieImage = fileName;
             }
 
             sqlContext.SaveChanges();

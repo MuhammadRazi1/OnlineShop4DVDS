@@ -50,7 +50,7 @@
                 @Html.DisplayFor(modelItem => item.AlbumPrice)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.AlbumImage)
+                    <img src="~/images/albums/@Html.DisplayFor(modelItem => item.AlbumImage)" width="80"/>
             </td>
             <td>
                     @(item.Artist?.ArtistName ?? "No Artist")
