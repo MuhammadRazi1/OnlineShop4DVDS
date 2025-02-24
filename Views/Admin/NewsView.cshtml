@@ -1,0 +1,56 @@
+﻿@model IEnumerable<OnlineShop4DVDS.Models.News>
+
+@{
+    ViewData["Title"] = "NewsView";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1>NewsView</h1>
+
+<p>
+    <a asp-action="NewsInsert">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NewsTitle)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NewsDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NewsDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NewsAuthor)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.NewsTitle)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NewsDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NewsDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NewsAuthor)
+            </td>
+            <td>
+                <a asp-action="NewsUpdate" asp-route-id="@item.NewsId">Edit</a> |
+                <form asp-action="NewsDelete" method="post" style="display: inline;">
+                    <input type="hidden" name="id" value="@item.NewsId"/>
+                        <button type="submit" class="btn btn-link" onclick="return confirm('Are you sure you want to delete this news?');">Delete</button>
+                    </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

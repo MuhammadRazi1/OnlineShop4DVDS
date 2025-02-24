@@ -25,6 +25,7 @@ namespace OnlineShop4DVDS.SqlDbContext
         public DbSet<GamePlatform> GamePlatforms { get; set; }
         public DbSet<Movie> Movies { get; set; }
         public DbSet<MovieGenre> MovieGenres { get; set; }
+        public DbSet<News> News { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

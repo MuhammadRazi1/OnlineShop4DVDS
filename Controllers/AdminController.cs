@@ -1022,5 +1022,88 @@ namespace OnlineShop4DVDS.Controllers
 
             return RedirectToAction("MovieView");
         }
+
+        //News View
+
+        public IActionResult NewsView()
+        {
+            var news = sqlContext.News.ToList();
+            return View(news);
+        }
+
+        //News Insert
+
+        public IActionResult NewsInsert()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult NewsInsert(News news)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(news);
+            }
+
+            sqlContext.News.Add(news);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("NewsView");
+        }
+
+        //News Update
+
+        public IActionResult NewsUpdate(int id)
+        {
+            var news = sqlContext.News.FirstOrDefault(n => n.NewsId == id);
+
+            if(news == null)
+            {
+                return NotFound();
+            }
+
+            return View(news);
+        }
+
+        [HttpPost]
+        public IActionResult NewsUpdate(News news)
+        {
+            if(!ModelState.IsValid)
+            {
+                return View(news);
+            }
+
+            var existingNews = sqlContext.News.FirstOrDefault(n => n.NewsId == news.NewsId);
+            if(existingNews == null)
+            {
+                return NotFound();
+            }
+
+            existingNews.NewsTitle = news.NewsTitle;
+            existingNews.NewsDescription = news.NewsDescription;
+            existingNews.NewsDate = news.NewsDate;
+            existingNews.NewsAuthor = news.NewsAuthor;
+
+            sqlContext.News.Update(existingNews);
+            sqlContext.SaveChanges();
+            return RedirectToAction("NewsView");
+        }
+
+        //News Delete
+
+        [HttpPost]
+        public IActionResult NewsDelete(int id)
+        {
+            var news = sqlContext.News.FirstOrDefault(n => n.NewsId == id);
+            if(news == null)
+            {
+                return NotFound();
+            }
+
+            sqlContext.News.Remove(news);
+            sqlContext.SaveChanges();
+            return RedirectToAction("NewsView");
+        }
     }
 }
