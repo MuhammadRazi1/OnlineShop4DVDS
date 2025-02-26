@@ -230,5 +230,21 @@ namespace OnlineShop4DVDS.Controllers
 
             return RedirectToAction("Register");
         }
+
+        //Album Page
+
+        public IActionResult AlbumPage()
+        {
+            var album = sqlContext.Albums.ToList();
+            return View(album);
+        }
+
+        //Game Page
+
+        public IActionResult GamePage()
+        {
+            var game = sqlContext.Games.ToList();
+            return View(game);
+        }
     }
 }
