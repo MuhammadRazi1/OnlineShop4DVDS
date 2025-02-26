@@ -159,6 +159,13 @@ namespace OnlineShop4DVDS.Controllers
                 return RedirectToAction("Login");
             }
 
+            var userName = HttpContext.Session.GetString("UserName");
+
+            if (!string.IsNullOrEmpty(userName))
+            {
+                ViewBag.UserName = userName;
+            }
+
             return View(user);
         }
 

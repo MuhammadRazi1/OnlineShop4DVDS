@@ -5,7 +5,71 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>ProfileUpdate</h1>
+<!-- Normal Breadcrumb Begin -->
+<section class="normal-breadcrumb set-bg" data-setbg="img/normal-breadcrumb.jpg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="normal__breadcrumb__text">
+                    @if (!string.IsNullOrEmpty(ViewBag.UserName))
+                    {
+                        <h2>Hello, @ViewBag.UserName!</h2>
+                    }
+                    else
+                    {
+                        <h2>Welcome, Guest!</h2>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Normal Breadcrumb End -->
+<!-- Signup Section Begin -->
+<section class="signup spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="login__form">
+                    <h3>Update Profile</h3>
+                    <form asp-action="ProfileUpdate" method="post">
+                        <span asp-validation-for="UserEmail" class="text-danger"></span>
+                        <div class="input__item">
+                            <input asp-for="UserEmail" type="text" placeholder="Email address">
+                        </div>
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                        <div class="input__item">
+                            <input asp-for="UserName" type="text" placeholder="Your Name">
+                        </div>
+                        <div class="input__item">
+                            <input type="text" placeholder="Password">
+                            <span class="icon_lock"></span>
+                        </div>
+                        <button type="submit" class="site-btn">Update Profile</button>
+                        <form asp-action="DeleteAccount" method="post">
+                            <button type="submit" class="site-btn" onclick="return confirm('Are you sure you want to delete your account? This action is irreversible!');">Delete Account</button>
+                        </form>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="login__social__links">
+                    <h3>Login With:</h3>
+                    <ul>
+                        <li>
+                            <a href="#" class="facebook"><i class="fa fa-facebook"></i> Sign in With Facebook</a>
+                        </li>
+                        <li><a href="#" class="google"><i class="fa fa-google"></i> Sign in With Google</a></li>
+                        <li><a href="#" class="twitter"><i class="fa fa-twitter"></i> Sign in With Twitter</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Signup Section End -->
+
+@* <h1>ProfileUpdate</h1>
 
 <h4>User</h4>
 <hr />
@@ -32,7 +96,7 @@
 
 <div>
     <a asp-action="Index">Back to List</a>
-</div>
+</div> *@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
