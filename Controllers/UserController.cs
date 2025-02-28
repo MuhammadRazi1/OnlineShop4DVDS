@@ -246,5 +246,28 @@ namespace OnlineShop4DVDS.Controllers
             var game = sqlContext.Games.ToList();
             return View(game);
         }
+
+        //Movie Page
+
+        public IActionResult MoviePage()
+        {
+            var movie = sqlContext.Movies.ToList();
+            return View(movie);
+        }
+
+        //News Page
+
+        public IActionResult NewsPage()
+        {
+            var news = sqlContext.News.ToList();
+            return View(news);
+        }
+
+        //Feedback Page
+
+        public IActionResult FeedbackPage()
+        {
+            return View();
+        }
     }
 }
