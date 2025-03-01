@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OnlineShop4DVDS.Models;
 using OnlineShop4DVDS.SqlDbContext;
 using System.Reflection.Metadata.Ecma335;
@@ -251,7 +252,20 @@ namespace OnlineShop4DVDS.Controllers
 
         public IActionResult MoviePage()
         {
-            var movie = sqlContext.Movies.ToList();
+            var movie = sqlContext.Movies
+                 .Include(mg => mg.MovieGenres)
+                     .ThenInclude(g => g.Genre)
+                 .ToList();
+            return View(movie);
+        }
+
+        public IActionResult SingleMovie(int id)
+        {
+            var movie = sqlContext.Movies
+                .Include(mg => mg.MovieGenres)
+                    .ThenInclude(g => g.Genre)
+                .FirstOrDefault(m => m.MovieId == id);
+
             return View(movie);
         }
 
