@@ -20,6 +20,8 @@
     <Folder Include="wwwroot\images\albums\" />
     <Folder Include="wwwroot\images\games\" />
     <Folder Include="wwwroot\images\movies\" />
+    <Folder Include="wwwroot\videos\games\" />
+    <Folder Include="wwwroot\videos\movies\" />
   </ItemGroup>
 
 </Project>

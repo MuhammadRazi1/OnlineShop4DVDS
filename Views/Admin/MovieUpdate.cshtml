@@ -7,7 +7,6 @@
 
 <h1>MovieUpdate</h1>
 
-<h4>Movie</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -36,7 +35,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="MovieFilePath" class="control-label"></label>
-                <input asp-for="MovieFilePath" class="form-control" />
+                <input name="MovieFilePath" type="file" asp-for="MovieFilePath" class="form-control" />
                 <span asp-validation-for="MovieFilePath" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -68,7 +67,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="MovieView" class="btn btn-outline-primary">Back to List</a>
 </div>
 
 @section Scripts {

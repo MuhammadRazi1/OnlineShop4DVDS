@@ -59,6 +59,7 @@
                                 {
                                     <a href="#"><i class="fa fa-star-o"></i></a>
                                 }
+                                <span>@Model.MovieRating</span>
                             </div>
                         </div>
                         <p>
@@ -83,7 +84,7 @@
                         </div>
                         <div class="anime__details__btn">
                             <a href="#" class="follow-btn"><i class="fa fa-heart-o"></i> Add to Cart</a>
-                            <a href="#" class="watch-btn">
+                            <a asp-controller="User" asp-action="MovieTrailer" asp-route-id="@Model.MovieId" class="watch-btn">
                                 <span>Watch Trailer</span> <i class="fa fa-angle-right"></i>
                             </a>
                         </div>

@@ -30,5 +30,7 @@ namespace OnlineShop4DVDS.Models
         public string? UserRole { get; set; }
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+        public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
     }
 }

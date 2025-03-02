@@ -15,7 +15,7 @@ namespace OnlineShop4DVDS.Controllers
             this.sqlContext = sqlContext;
         }
 
-//User Register
+        //User Register
 
         [HttpGet]
         public IActionResult Register()
@@ -55,14 +55,14 @@ namespace OnlineShop4DVDS.Controllers
 
         private string HashPassword(string password)
         {
-            using(var sha256 = System.Security.Cryptography.SHA256.Create())
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
             {
                 var bytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
                 return System.Convert.ToBase64String(bytes);
             }
         }
 
-//User Login
+        //User Login
 
         [HttpGet]
         public IActionResult Login()
@@ -75,13 +75,13 @@ namespace OnlineShop4DVDS.Controllers
         {
             var user = sqlContext.Users.FirstOrDefault(u => u.UserEmail == loginUser.UserEmail);
 
-            if(user == null)
+            if (user == null)
             {
                 ModelState.AddModelError("UserEmail", "User does not exist");
                 return View(loginUser);
             }
 
-            if(user.UserPassword != HashPassword(loginUser.UserPassword))
+            if (user.UserPassword != HashPassword(loginUser.UserPassword))
             {
                 ModelState.AddModelError("UserPassword", "Invalid password.");
                 return View(loginUser);
@@ -90,10 +90,11 @@ namespace OnlineShop4DVDS.Controllers
             HttpContext.Session.SetString("UserRole", user.UserRole);
             HttpContext.Session.SetString("UserName", user.UserName);
             HttpContext.Session.SetString("UserEmail", user.UserEmail);
+            HttpContext.Session.SetInt32("UserId", user.UserId);
 
             Console.WriteLine($"User {user.UserEmail} logged in successfully with role {user.UserRole}");
 
-            if(user.UserRole == "Admin")
+            if (user.UserRole == "Admin")
             {
                 return RedirectToAction("Index", "Admin");
             }
@@ -101,7 +102,7 @@ namespace OnlineShop4DVDS.Controllers
             return RedirectToAction("Index");
         }
 
-//User Logout
+        //User Logout
 
         public IActionResult Logout()
         {
@@ -115,7 +116,7 @@ namespace OnlineShop4DVDS.Controllers
             return RedirectToAction("Login");
         }
 
-//Index View
+        //Index View
 
         public IActionResult Index()
         {
@@ -125,14 +126,15 @@ namespace OnlineShop4DVDS.Controllers
             return View();
         }
 
-//Profile View
+        //Profile View
 
         public IActionResult Profile()
         {
             var username = HttpContext.Session.GetString("UserName");
             var useremail = HttpContext.Session.GetString("UserEmail");
 
-            if(string.IsNullOrEmpty(username) || string.IsNullOrEmpty(useremail)){
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(useremail))
+            {
                 return RedirectToAction("Login");
             }
 
@@ -142,7 +144,7 @@ namespace OnlineShop4DVDS.Controllers
             return View();
         }
 
-//Profile Update
+        //Profile Update
 
         [HttpGet]
         public IActionResult ProfileUpdate()
@@ -155,7 +157,7 @@ namespace OnlineShop4DVDS.Controllers
             }
 
             var user = sqlContext.Users.FirstOrDefault(u => u.UserEmail == useremail);
-            if(user == null)
+            if (user == null)
             {
                 return RedirectToAction("Login");
             }
@@ -175,18 +177,18 @@ namespace OnlineShop4DVDS.Controllers
         {
             string? useremail = HttpContext.Session.GetString("UserEmail");
 
-            if(string.IsNullOrEmpty(useremail))
+            if (string.IsNullOrEmpty(useremail))
             {
                 return RedirectToAction("Login");
             }
 
             var user = sqlContext.Users.FirstOrDefault(u => u.UserEmail == useremail);
-            if(user == null)
+            if (user == null)
             {
                 return RedirectToAction("Login");
             }
 
-            if(sqlContext.Users.Any(u => u.UserEmail == updateUser.UserEmail && u.UserEmail != useremail))
+            if (sqlContext.Users.Any(u => u.UserEmail == updateUser.UserEmail && u.UserEmail != useremail))
             {
                 ModelState.AddModelError("UserEmail", "This email is already in use.");
                 return View(updateUser);
@@ -206,7 +208,7 @@ namespace OnlineShop4DVDS.Controllers
             return RedirectToAction("Profile");
         }
 
-//Account Delete
+        //Account Delete
 
         [HttpPost]
         public IActionResult DeleteAccount()
@@ -219,7 +221,7 @@ namespace OnlineShop4DVDS.Controllers
             }
 
             var user = sqlContext.Users.FirstOrDefault(u => u.UserEmail == useremail);
-            if(user == null)
+            if (user == null)
             {
                 return RedirectToAction("Login");
             }
@@ -240,11 +242,45 @@ namespace OnlineShop4DVDS.Controllers
             return View(album);
         }
 
+        public IActionResult SingleAlbum(int id)
+        {
+            var albums = sqlContext.Albums.Include(a => a.Artist).FirstOrDefault(a => a.AlbumId == id);
+            if (albums == null)
+            {
+                return NotFound();
+            };
+
+            var songs = sqlContext.Songs.Where(s => s.AlbumId == id).ToList();
+            ViewBag.Songs = songs;
+
+            return View(albums);
+        }
+
         //Game Page
 
         public IActionResult GamePage()
         {
             var game = sqlContext.Games.ToList();
+            return View(game);
+        }
+
+        public IActionResult SingleGame(int id)
+        {
+            var games = sqlContext.Games
+                .Include(d => d.Developer)
+                .Include(gp => gp.GamePlatforms)
+                    .ThenInclude(p => p.Platform)
+                .Include(gg => gg.GameGenres)
+                    .ThenInclude(g => g.Genre)
+                .FirstOrDefault(g => g.GameId == id);
+
+            return View(games);
+        }
+
+        public IActionResult GameTrailer(int id)
+        {
+            var game = sqlContext.Games
+                .FirstOrDefault(g => g.GameId == id);
             return View(game);
         }
 
@@ -269,6 +305,13 @@ namespace OnlineShop4DVDS.Controllers
             return View(movie);
         }
 
+        public IActionResult MovieTrailer(int id)
+        {
+            var movie = sqlContext.Movies
+                .FirstOrDefault(m => m.MovieId == id);
+            return View(movie);
+        }
+
         //News Page
 
         public IActionResult NewsPage()
@@ -282,6 +325,29 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult FeedbackPage()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult FeedbackInsert(Feedback feedback)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(feedback);
+            }
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if(userId == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            feedback.UserId = userId.Value;
+            sqlContext.Feedbacks.Add(feedback);
+            sqlContext.SaveChanges();
+            ModelState.Clear();
+            ViewBag.FeedbackSuccess = "Feedback added successfully!";
+            return RedirectToAction("FeedbackPage");
         }
     }
 }

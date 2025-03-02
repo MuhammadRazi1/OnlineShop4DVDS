@@ -1,0 +1,39 @@
+﻿@model OnlineShop4DVDS.Models.Movie
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a href="./index.html"><i class="fa fa-home"></i> Home</a>
+                    <a href="./categories.html">Categories</a>
+                    <a href="#">Romance</a>
+                    <span>Fate Stay Night: Unlimited Blade</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+<section class="anime-details spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="anime__video__player">
+                    <video id="player" playsinline controls>
+                        <source src="~/videos/movies/@Model.MovieFilePath" type="video/mp4" />
+                        <track kind="captions" label="English captions" src="#" srclang="en" default />
+                    </video>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Anime Section End -->

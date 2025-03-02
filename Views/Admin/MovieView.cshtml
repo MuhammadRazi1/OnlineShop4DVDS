@@ -4,9 +4,6 @@
     ViewData["Title"] = "MovieView";
     Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
-
-<h1>MovieView</h1>
-
 <p>
     <a asp-action="MovieInsert">Create New</a>
 </p>
@@ -71,10 +68,10 @@
                     }
             </td>
             <td>
-                <a asp-action="MovieUpdate" asp-route-id="@item.MovieId">Edit</a> |
+                <a asp-action="MovieUpdate" class="btn btn-primary" asp-route-id="@item.MovieId">Edit</a> |
                     <form method="post" asp-action="MovieDelete" style="display: inline;">
                         <input type="hidden" name="id" value="@item.MovieId" />
-                        <button type="submit" class="btn btn-link" onclick="return confirm('Are you sure you want to delete this movie?');">Delete</button>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this movie?');">Delete</button>
                     </form>
             </td>
         </tr>

@@ -690,7 +690,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult GameInsert(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds, IFormFile GameImage)
+        public IActionResult GameInsert(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds, IFormFile GameImage, IFormFile GameFilePath)
         {
             if (!ModelState.IsValid)
             {
@@ -729,8 +729,13 @@ namespace OnlineShop4DVDS.Controllers
             fileName = Guid.NewGuid().ToString() + "_" + GameImage.FileName;
             string filePath = Path.Combine(destination, fileName);
             GameImage.CopyTo(new FileStream(filePath, FileMode.Create));
-
             game.GameImage = fileName;
+
+            string videoFileName = Guid.NewGuid().ToString() + "_" + GameFilePath.FileName;
+            string videoDestination = Path.Combine(env.WebRootPath, "videos/games");
+            string videoFilePath = Path.Combine(videoDestination, videoFileName);
+            GameFilePath.CopyTo(new FileStream(videoFilePath, FileMode.Create));
+            game.GameFilePath = videoFileName;
 
             sqlContext.Games.Add(game);
             sqlContext.SaveChanges();
@@ -766,10 +771,15 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult GameUpdate(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds, IFormFile GameImage)
+        public IActionResult GameUpdate(Game game, List<int> SelectedGenreIds, List<int> SelectedPlatformIds, IFormFile GameImage, IFormFile GameFilePath)
         {
             if (!ModelState.IsValid)
             {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }   
+
                 ViewBag.Developers = new SelectList(sqlContext.Developers.ToList(), "DeveloperId", "DeveloperName", game.DeveloperId);
                 ViewBag.Genres = sqlContext.Genres.ToList();
                 ViewBag.Platforms = sqlContext.Platforms.ToList();
@@ -793,8 +803,8 @@ namespace OnlineShop4DVDS.Controllers
             existingGame.GameDescription = game.GameDescription;
             existingGame.GamePrice = game.GamePrice;
             existingGame.GameReleaseDate = game.GameReleaseDate;
-            existingGame.GameFilePath = game.GameFilePath;
             existingGame.GameImage = game.GameImage;
+            existingGame.GameFilePath = game.GameFilePath;
 
             existingGame.GameGenres.Clear();
             foreach(var genreId in SelectedGenreIds)
@@ -837,6 +847,29 @@ namespace OnlineShop4DVDS.Controllers
                 }
 
                 existingGame.GameImage = fileName;
+            }
+
+            if (GameFilePath != null && GameFilePath.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(existingGame.GameFilePath))
+                {
+                    string oldVideoPath = Path.Combine(env.WebRootPath, "videos/games", existingGame.GameFilePath);
+                    if (System.IO.File.Exists(oldVideoPath))
+                    {
+                        System.IO.File.Delete(oldVideoPath);
+                    }
+                }
+
+                string videoFileName = Guid.NewGuid().ToString() + "_" + GameFilePath.FileName;
+                string videoDestination = Path.Combine(env.WebRootPath, "videos/games");
+                string videoFilePath = Path.Combine(videoDestination, videoFileName);
+
+                using (var stream = new FileStream(videoFilePath, FileMode.Create))
+                {
+                    GameFilePath.CopyTo(stream);
+                }
+
+                existingGame.GameFilePath = videoFileName;
             }
 
             sqlContext.SaveChanges();
@@ -888,7 +921,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult MovieInsert(Movie movie, List<int> SelectedGenreIds, IFormFile MovieImage)
+        public IActionResult MovieInsert(Movie movie, List<int> SelectedGenreIds, IFormFile MovieImage, IFormFile MovieFilePath)
         {
             if (!ModelState.IsValid)
             {
@@ -910,8 +943,13 @@ namespace OnlineShop4DVDS.Controllers
             fileName = Guid.NewGuid().ToString() + "_" + MovieImage.FileName;
             string filePath = Path.Combine(destination, fileName);
             MovieImage.CopyTo(new FileStream(filePath, FileMode.Create));
-
             movie.MovieImage = fileName;
+
+            string videoFileName = Guid.NewGuid().ToString() + "_" + MovieFilePath.FileName;
+            string videoDestination = Path.Combine(env.WebRootPath, "videos/movies");
+            string videoFilePath = Path.Combine(videoDestination, videoFileName);
+            MovieFilePath.CopyTo(new FileStream(videoFilePath, FileMode.Create));
+            movie.MovieFilePath = videoFileName;
 
             sqlContext.Movies.Add(movie);
             sqlContext.SaveChanges();
@@ -940,7 +978,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult MovieUpdate(Movie movie, List<int> SelectedGenreIds, IFormFile MovieImage)
+        public IActionResult MovieUpdate(Movie movie, List<int> SelectedGenreIds, IFormFile MovieImage, IFormFile MovieFilePath)
         {
             if (!ModelState.IsValid)
             {
@@ -997,6 +1035,29 @@ namespace OnlineShop4DVDS.Controllers
                 }
 
                 existingMovie.MovieImage = fileName;
+            }
+
+            if (MovieFilePath != null && MovieFilePath.Length > 0)
+            {
+                if (!string.IsNullOrEmpty(existingMovie.MovieFilePath))
+                {
+                    string oldVideoPath = Path.Combine(env.WebRootPath, "videos/movies", existingMovie.MovieFilePath);
+                    if (System.IO.File.Exists(oldVideoPath))
+                    {
+                        System.IO.File.Delete(oldVideoPath);
+                    }
+                }
+
+                string videoFileName = Guid.NewGuid().ToString() + "_" + MovieFilePath.FileName;
+                string videoDestination = Path.Combine(env.WebRootPath, "videos/movies");
+                string videoFilePath = Path.Combine(videoDestination, videoFileName);
+
+                using (var stream = new FileStream(videoFilePath, FileMode.Create))
+                {
+                    MovieFilePath.CopyTo(stream);
+                }
+
+                existingMovie.MovieFilePath = videoFileName;
             }
 
             sqlContext.SaveChanges();
@@ -1104,6 +1165,30 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.News.Remove(news);
             sqlContext.SaveChanges();
             return RedirectToAction("NewsView");
+        }
+
+        //Feedback View
+
+        public IActionResult FeedbackView()
+        {
+            var feedbacks = sqlContext.Feedbacks.Include(u => u.User).ToList();
+            return View(feedbacks);
+        }
+
+        //Feedback delete
+
+        [HttpPost]
+        public IActionResult FeedbackDelete(int id)
+        {
+            var feedback = sqlContext.Feedbacks.FirstOrDefault(f => f.FeedbackId == id);
+            if(feedback == null)
+            {
+                return NotFound();
+            }
+
+            sqlContext.Feedbacks.Remove(feedback);
+            sqlContext.SaveChanges();
+            return RedirectToAction("FeedbackView");
         }
     }
 }

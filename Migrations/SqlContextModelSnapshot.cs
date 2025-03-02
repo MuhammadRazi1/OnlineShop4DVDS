@@ -164,6 +164,32 @@ namespace OnlineShop4DVDS.Migrations
                     b.ToTable("Developers");
                 });
 
+            modelBuilder.Entity("OnlineShop4DVDS.Models.Feedback", b =>
+                {
+                    b.Property<int>("FeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeedbackId"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FeedbackId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Feedbacks");
+                });
+
             modelBuilder.Entity("OnlineShop4DVDS.Models.Game", b =>
                 {
                     b.Property<int>("GameId")
@@ -473,6 +499,17 @@ namespace OnlineShop4DVDS.Migrations
                     b.Navigation("ArtistRole");
                 });
 
+            modelBuilder.Entity("OnlineShop4DVDS.Models.Feedback", b =>
+                {
+                    b.HasOne("OnlineShop4DVDS.Models.User", "User")
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OnlineShop4DVDS.Models.Game", b =>
                 {
                     b.HasOne("OnlineShop4DVDS.Models.Developer", "Developer")
@@ -644,6 +681,8 @@ namespace OnlineShop4DVDS.Migrations
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.User", b =>
                 {
+                    b.Navigation("Feedbacks");
+
                     b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618

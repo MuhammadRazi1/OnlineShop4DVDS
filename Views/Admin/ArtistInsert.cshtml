@@ -5,10 +5,7 @@
     Layout = "~/Views/Shared/AdminLayout.cshtml";
 }
 
-<h1>ArtistInsert</h1>
-
 <h4>Artist</h4>
-<div asp-validation-summary="All" class="text-danger"></div>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -54,7 +51,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="ArtistView" asp-controller="Admin" class="btn btn-outline-primary">Back to List</a>
 </div>
 
 @section Scripts {
