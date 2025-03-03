@@ -25,5 +25,7 @@ namespace OnlineShop4DVDS.Models
 
         [ForeignKey("AlbumId")]
         public virtual Album? Album { get; set; }
+
+        public ICollection<UserSong> UserSongs { get; set; }
     }
 }

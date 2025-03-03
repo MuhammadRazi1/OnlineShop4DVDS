@@ -250,7 +250,7 @@ namespace OnlineShop4DVDS.Controllers
                 return NotFound();
             };
 
-            var songs = sqlContext.Songs.Where(s => s.AlbumId == id).ToList();
+            var songs = sqlContext.Songs.Include(c => c.Category).Where(s => s.AlbumId == id).ToList();
             ViewBag.Songs = songs;
 
             return View(albums);
@@ -337,7 +337,7 @@ namespace OnlineShop4DVDS.Controllers
 
             var userId = HttpContext.Session.GetInt32("UserId");
 
-            if(userId == null)
+            if (userId == null)
             {
                 return RedirectToAction("Login");
             }
@@ -348,6 +348,64 @@ namespace OnlineShop4DVDS.Controllers
             ModelState.Clear();
             ViewBag.FeedbackSuccess = "Feedback added successfully!";
             return RedirectToAction("FeedbackPage");
+        }
+
+        //Collection Page
+
+        [HttpPost]
+        public IActionResult AddToCollection(int id, int albumId)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var existingCollection = sqlContext.UserSongs.FirstOrDefault(us => us.UserId == userId && us.SongId == id);
+
+            if(existingCollection == null)
+            {
+                var userSong = new UserSong
+                {
+                    UserId = userId.Value,
+                    SongId = id,
+                    AddedOn = System.DateTime.Now
+                };
+
+                sqlContext.UserSongs.Add(userSong);
+                sqlContext.SaveChanges();
+
+                TempData["CollectionMessage"] = "Song added to collection!";
+                TempData["AddedSongId"] = id;
+            }
+            else
+            {
+                TempData["CollectionMessage"] = "Song already in collection!";
+            }
+
+            return RedirectToAction("SingleAlbum", new { id = albumId });
+        }
+
+        public IActionResult CollectionView()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var collections = sqlContext.UserSongs
+                .Include(s => s.Song)
+                .Where(us => us.UserId == userId)
+                .ToList();
+
+            if (TempData["CollectionMessage"] != null)
+            {
+                ViewBag.CollectionMessage = TempData["CollectionMessage"];
+            }
+
+            return View(collections);
         }
     }
 }

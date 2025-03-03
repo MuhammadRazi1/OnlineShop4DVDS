@@ -27,6 +27,7 @@ namespace OnlineShop4DVDS.SqlDbContext
         public DbSet<MovieGenre> MovieGenres { get; set; }
         public DbSet<News> News { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<UserSong> UserSongs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -125,6 +126,19 @@ namespace OnlineShop4DVDS.SqlDbContext
                 .HasOne(f => f.User)
                 .WithMany(u => u.Feedbacks)
                 .HasForeignKey(f => f.UserId);
+
+            modelBuilder.Entity<UserSong>()
+                .HasKey(us => new { us.UserId, us.SongId });
+
+            modelBuilder.Entity<UserSong>()
+                .HasOne(us => us.User)
+                .WithMany(u => u.UserSongs)
+                .HasForeignKey(us => us.UserId);
+
+            modelBuilder.Entity<UserSong>()
+                .HasOne(us => us.Song)
+                .WithMany(s => s.UserSongs)
+                .HasForeignKey(us => us.SongId);
         }
     }
 }

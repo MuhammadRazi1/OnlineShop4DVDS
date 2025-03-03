@@ -50,12 +50,10 @@
                         @foreach (var item in Model)
                         {
                             <div style="width: 100%; margin-bottom: 20px; padding: 15px; border: 1px solid #333; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); background-color: white">
-                                <!-- News Title -->
                                 <h3 style="margin: 0 0 10px 0; font-size: 20px; color: #333;">
                                     @Html.DisplayFor(modelItem => item.NewsTitle)
                                 </h3>
 
-                                <!-- News Date and Author -->
                                 <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #666;">
                                     <span>@Html.DisplayFor(modelItem => item.NewsDate)</span>
                                     <span>By @Html.DisplayFor(modelItem => item.NewsAuthor)</span>
