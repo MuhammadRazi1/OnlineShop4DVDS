@@ -244,16 +244,39 @@ namespace OnlineShop4DVDS.Controllers
 
         public IActionResult SingleAlbum(int id)
         {
-            var albums = sqlContext.Albums.Include(a => a.Artist).FirstOrDefault(a => a.AlbumId == id);
-            if (albums == null)
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var album = sqlContext.Albums
+                .Include(a => a.Artist)
+                .FirstOrDefault(a => a.AlbumId == id);
+
+            if (album == null)
             {
                 return NotFound();
-            };
+            }
 
-            var songs = sqlContext.Songs.Include(c => c.Category).Where(s => s.AlbumId == id).ToList();
+            var songs = sqlContext.Songs
+                .Where(s => s.AlbumId == id)
+                .Include(s => s.Category)
+                .ToList();
+
+            var userCollection = new List<int>();
+            if (userId.HasValue)
+            {
+                userCollection = sqlContext.UserSongs
+                    .Where(us => us.UserId == userId.Value && songs.Select(s => s.SongId).Contains(us.SongId))
+                    .Select(us => us.SongId)
+                    .ToList();
+            }
+
             ViewBag.Songs = songs;
+            ViewBag.UserCollection = userCollection;
 
-            return View(albums);
+            return View(album);
         }
 
         //Game Page
@@ -397,6 +420,8 @@ namespace OnlineShop4DVDS.Controllers
 
             var collections = sqlContext.UserSongs
                 .Include(s => s.Song)
+                .ThenInclude(a => a.Album)
+                .Include(c => c.Song.Category)
                 .Where(us => us.UserId == userId)
                 .ToList();
 
