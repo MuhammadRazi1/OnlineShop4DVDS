@@ -279,6 +279,43 @@ namespace OnlineShop4DVDS.Controllers
             return View(album);
         }
 
+        //Song Page
+
+        public IActionResult SongPage()
+        {
+            var song = sqlContext.Songs
+                .Include(c => c.Category)
+                .Include(a => a.Album)
+                .ToList();
+            return View(song);
+        }
+
+        public IActionResult SingleSong(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            //if(userId == null)
+            //{
+            //    return RedirectToAction("Login");
+            //}
+
+            var song = sqlContext.Songs
+                .Include(c => c.Category)
+                .Include(a => a.Album)
+                .FirstOrDefault(s => s.SongId == id);
+
+            if (song == null)
+            {
+                return NotFound(); // Handle case where the song doesn't exist
+            }
+
+            var isInCollection = sqlContext.UserSongs
+                .Any(us => us.UserId == userId && us.SongId == id);
+
+            ViewBag.IsInCollection = isInCollection; // Pass the collection status to the view
+
+            return View(song);
+        }
+
         //Game Page
 
         public IActionResult GamePage()
@@ -407,6 +444,35 @@ namespace OnlineShop4DVDS.Controllers
             }
 
             return RedirectToAction("SingleAlbum", new { id = albumId });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveFromCollection(int id) // id is the SongId
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            // Find the song in the user's collection
+            var userSong = sqlContext.UserSongs
+                .FirstOrDefault(us => us.UserId == userId && us.SongId == id);
+
+            if (userSong != null)
+            {
+                // Remove the song from the collection
+                sqlContext.UserSongs.Remove(userSong);
+                sqlContext.SaveChanges();
+
+                TempData["CollectionMessage"] = "Song removed from collection!";
+            }
+            else
+            {
+                TempData["CollectionMessage"] = "Song is not in your collection!";
+            }
+
+            return RedirectToAction("SingleSong", new { id }); // Redirect back to the song details page
         }
 
         public IActionResult CollectionView()
