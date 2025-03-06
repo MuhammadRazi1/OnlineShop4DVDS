@@ -1,0 +1,66 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<div class="anime__details__form">
+    <div class="section-title">
+        <h5>Your Review</h5>
+    </div>
+    <form asp-action="AddReview" asp-controller="User" method="post">
+        <input type="hidden" name="AlbumId" value="@ViewBag.AlbumId" />
+        <input type="hidden" name="GameId" value="@ViewBag.GameId" />
+        <input type="hidden" name="MovieId" value="@ViewBag.MovieId" />
+        <input type="hidden" name="UserId" value="@Context.Session.GetInt32("UserId")" />
+
+        <textarea placeholder="Your Review" name="ReviewText" required></textarea>
+
+        <div class="form-group">
+            <label for="ReviewRating" style="display: block; margin-bottom: 10px;">Rating</label>
+            <div class="star-rating">
+                @for (int i = 1; i <= 5; i++)
+                {
+                    <span class="star" data-value="@i">&#9733;</span>
+                }
+            </div>
+            <input type="hidden" name="ReviewRating" id="ReviewRating" required />
+        </div>
+
+        <button type="submit"><i class="fa fa-location-arrow"></i> Submit Review</button>
+    </form>
+</div>
+
+<style>
+    .star-rating {
+        font-size: 24px;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+        .star-rating .star {
+            color: #ccc;
+        }
+
+            .star-rating .star:hover,
+            .star-rating .star.active {
+                color: #ffcc00;
+            }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const stars = document.querySelectorAll('.star-rating .star');
+        const ratingInput = document.getElementById('ReviewRating');
+
+        stars.forEach(star => {
+            star.addEventListener('click', function () {
+                const value = this.getAttribute('data-value');
+                ratingInput.value = value;
+
+                stars.forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+                for (let i = 0; i < value; i++) {
+                    stars[i].classList.add('active');
+                }
+            });
+        });
+    });
+</script>

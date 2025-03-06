@@ -498,5 +498,45 @@ namespace OnlineShop4DVDS.Controllers
 
             return View(collections);
         }
+
+        //Review
+
+        [HttpPost]
+        public IActionResult AddReview(Review review)
+        {
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (ModelState.IsValid)
+            {
+                review.ReviewDate = DateTime.UtcNow;
+                sqlContext.Reviews.Add(review);
+                sqlContext.SaveChanges();
+
+                TempData["ReviewMessage"] = "Review added successfully!";
+            }
+            else
+            {
+                TempData["ReviewMessage"] = "Failed to add review. Please check your input.";
+            }
+
+            if (review.AlbumId != null)
+            {
+                return RedirectToAction("SingleAlbum", "User", new { id = review.AlbumId });
+            }
+            else if (review.GameId != null)
+            {
+                return RedirectToAction("SingleGame", "User", new { id = review.GameId });
+            }
+            else if (review.MovieId != null)
+            {
+                return RedirectToAction("SingleMovie", "User", new { id = review.MovieId });
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }
