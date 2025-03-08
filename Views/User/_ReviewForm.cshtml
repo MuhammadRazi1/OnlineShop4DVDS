@@ -14,7 +14,7 @@
         <textarea placeholder="Your Review" name="ReviewText" required></textarea>
 
         <div class="form-group">
-            <label for="ReviewRating" style="display: block; margin-bottom: 10px;">Rating</label>
+            <label for="ReviewRating" style="display: block; margin-bottom: 10px; color: white">Rating</label>
             <div class="star-rating">
                 @for (int i = 1; i <= 5; i++)
                 {
@@ -36,30 +36,59 @@
     }
 
         .star-rating .star {
-            color: #ccc;
+            color: #ccc; /* Default color for inactive stars */
         }
 
-            .star-rating .star:hover,
             .star-rating .star.active {
-                color: #ffcc00;
+                color: #ffcc00; /* Color for active stars */
             }
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const stars = document.querySelectorAll('.star-rating .star');
-        const ratingInput = document.getElementById('ReviewRating');
+      document.addEventListener('DOMContentLoaded', function () {
+        // Select only the stars within the review form
+        const reviewForm = document.querySelector('.anime__details__form');
+        const stars = reviewForm.querySelectorAll('.star-rating .star');
+        const ratingInput = reviewForm.querySelector('#ReviewRating');
 
         stars.forEach(star => {
             star.addEventListener('click', function () {
                 const value = this.getAttribute('data-value');
                 ratingInput.value = value;
 
-                stars.forEach(s => s.classList.remove('active'));
-                this.classList.add('active');
-                for (let i = 0; i < value; i++) {
-                    stars[i].classList.add('active');
-                }
+                // Highlight stars up to the clicked star
+                stars.forEach((s, index) => {
+                    if (index < value) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+
+            star.addEventListener('mouseover', function () {
+                const value = this.getAttribute('data-value');
+
+                // Highlight stars up to the hovered star
+                stars.forEach((s, index) => {
+                    if (index < value) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+
+            star.addEventListener('mouseout', function () {
+                // Reset stars to their original state (based on the selected rating)
+                const selectedValue = ratingInput.value || 0;
+                stars.forEach((s, index) => {
+                    if (index < selectedValue) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
             });
         });
     });

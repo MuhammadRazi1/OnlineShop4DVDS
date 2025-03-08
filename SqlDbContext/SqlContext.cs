@@ -28,6 +28,9 @@ namespace OnlineShop4DVDS.SqlDbContext
         public DbSet<News> News { get; set; }
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<UserSong> UserSongs { get; set; }
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        //public DbSet<CartItemDetailViewModel> cartItemDetailViewModels { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

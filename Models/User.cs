@@ -33,6 +33,6 @@ namespace OnlineShop4DVDS.Models
 
         public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
 
-        public ICollection<UserSong> UserSongs { get; set; }
+        public ICollection<UserSong>? UserSongs { get; set; }
     }
 }

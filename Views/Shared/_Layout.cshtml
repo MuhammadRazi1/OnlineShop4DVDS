@@ -67,51 +67,28 @@
                         <a href="~/#" class="search-switch"><span class="icon_search"></span></a>
                         @if (Context.Session.GetString("UserEmail") != null)
                         {
-                            <span style="position: relative; display: inline-block;">
-                                <!-- Dropdown Toggle -->
-                                <a class="dropdown-toggle" style="text-decoration: none; color: white; cursor: pointer;">
-                                    @Context.Session.GetString("UserName")
+                            <a asp-controller="User" asp-action="CartView" style="text-decoration: none; color: white; margin-right: 15px;">
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
+
+                            <div class="user-dropdown" style="position: relative; display: inline-block;">
+                                <a class="user-icon" style="text-decoration: none; color: white; cursor: pointer;">
+                                    <i class="fa fa-user-circle" style="font-size: 24px;"></i> <!-- User icon -->
                                 </a>
 
                                 <!-- Dropdown Menu -->
-                                <span class="dropdown-menu" style="position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 5px 0; display: none; z-index: 1000;">
+                                <div class="dropdown-menu" style="position: absolute; top: 100%; right: 0; background: #fff; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 5px 0; display: none; z-index: 1000;">
                                     <a style="display: block; padding: 5px 20px; color: #111; text-decoration: none;" asp-controller="User" asp-action="ProfileUpdate">Manage Profile</a>
                                     <a style="display: block; padding: 5px 20px; color: #111; text-decoration: none;" asp-controller="User" asp-action="CollectionView">My Collection</a>
                                     <a style="display: block; padding: 5px 20px; color: #111; text-decoration: none;" asp-controller="User" asp-action="Logout">Logout</a>
-                                </span>
-                            </span>
+                                </div>
+                            </div>
                         }
                         else
                         {
                             <a asp-controller="User" asp-action="Login"><span class="icon_profile"></span></a>
                         }
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function () {
-                                var dropdownToggles = document.querySelectorAll('.dropdown-toggle');
-                                dropdownToggles.forEach(function (toggle) {
-                                    toggle.addEventListener('click', function (e) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        var dropdownMenu = this.nextElementSibling;
-                                        if (dropdownMenu.style.display === 'block') {
-                                            dropdownMenu.style.display = 'none';
-                                        } else {
-                                            dropdownMenu.style.display = 'block';
-                                        }
-                                    });
-                                });
-
-                                // Close dropdown when clicking outside
-                                document.addEventListener('click', function (e) {
-                                    if (!e.target.matches('.dropdown-toggle')) {
-                                        var dropdownMenus = document.querySelectorAll('.dropdown-menu');
-                                        dropdownMenus.forEach(function (menu) {
-                                            menu.style.display = 'none';
-                                        });
-                                    }
-                                });
-                            });
-                        </script>
+                        
                     </div>
                 </div>
             </div>
@@ -166,6 +143,29 @@
     </div>
     <!-- Search model end -->
     <!-- Js Plugins -->
+
+    <script>
+                document.addEventListener('DOMContentLoaded', function () {
+            var userIcon = document.querySelector('.user-icon');
+            var dropdownMenu = document.querySelector('.dropdown-menu');
+
+            if (userIcon && dropdownMenu) {
+                userIcon.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!e.target.matches('.user-icon') && !e.target.closest('.dropdown-menu')) {
+                        dropdownMenu.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+
     <script src="~/js/jquery-3.3.1.min.js"></script>
     <script src="~/js/bootstrap.min.js"></script>
     <script src="~/js/player.js"></script>

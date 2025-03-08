@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.Elfie.Model.Tree;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop4DVDS.Models;
 using OnlineShop4DVDS.SqlDbContext;
@@ -28,7 +30,14 @@ namespace OnlineShop4DVDS.Controllers
         {
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("Model state is invalid.");
+                foreach (var key in ModelState.Keys)
+                {
+                    var errors = ModelState[key].Errors;
+                    foreach (var error in errors)
+                    {
+                        Console.WriteLine($"Key: {key}, Error: {error.ErrorMessage}");
+                    }
+                }
                 return View(user);
             }
 
@@ -45,7 +54,6 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
 
             ModelState.Clear();
-            HttpContext.Session.SetString("UserRole", "Guest");
 
             Console.WriteLine($"User registered: {user.UserEmail}, Session Role: {HttpContext.Session.GetString("UserRole")}");
 
@@ -245,13 +253,11 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult SingleAlbum(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            if (!userId.HasValue)
-            {
-                return RedirectToAction("Login");
-            }
 
             var album = sqlContext.Albums
                 .Include(a => a.Artist)
+                .Include(r => r.Reviews)
+                    .ThenInclude(u => u.User)
                 .FirstOrDefault(a => a.AlbumId == id);
 
             if (album == null)
@@ -275,6 +281,8 @@ namespace OnlineShop4DVDS.Controllers
 
             ViewBag.Songs = songs;
             ViewBag.UserCollection = userCollection;
+            ViewBag.AlbumId = album.AlbumId;
+            ViewBag.Reviews = album.Reviews;
 
             return View(album);
         }
@@ -293,10 +301,6 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult SingleSong(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            //if(userId == null)
-            //{
-            //    return RedirectToAction("Login");
-            //}
 
             var song = sqlContext.Songs
                 .Include(c => c.Category)
@@ -305,13 +309,13 @@ namespace OnlineShop4DVDS.Controllers
 
             if (song == null)
             {
-                return NotFound(); // Handle case where the song doesn't exist
+                return NotFound();
             }
 
             var isInCollection = sqlContext.UserSongs
                 .Any(us => us.UserId == userId && us.SongId == id);
 
-            ViewBag.IsInCollection = isInCollection; // Pass the collection status to the view
+            ViewBag.IsInCollection = isInCollection; 
 
             return View(song);
         }
@@ -332,7 +336,12 @@ namespace OnlineShop4DVDS.Controllers
                     .ThenInclude(p => p.Platform)
                 .Include(gg => gg.GameGenres)
                     .ThenInclude(g => g.Genre)
+                .Include(r => r.Reviews)
+                    .ThenInclude(u => u.User)
                 .FirstOrDefault(g => g.GameId == id);
+
+            ViewBag.GameId = games.GameId;
+            ViewBag.Reviews = games.Reviews;
 
             return View(games);
         }
@@ -360,7 +369,12 @@ namespace OnlineShop4DVDS.Controllers
             var movie = sqlContext.Movies
                 .Include(mg => mg.MovieGenres)
                     .ThenInclude(g => g.Genre)
+                 .Include(r => r.Reviews)
+                    .ThenInclude(u => u.User)
                 .FirstOrDefault(m => m.MovieId == id);
+
+            ViewBag.MovieId = movie.MovieId;
+            ViewBag.Reviews = movie.Reviews;
 
             return View(movie);
         }
@@ -443,11 +457,11 @@ namespace OnlineShop4DVDS.Controllers
                 TempData["CollectionMessage"] = "Song already in collection!";
             }
 
-            return RedirectToAction("SingleAlbum", new { id = albumId });
+            return RedirectToAction("SingleSong", new { id });
         }
 
         [HttpPost]
-        public IActionResult RemoveFromCollection(int id) // id is the SongId
+        public IActionResult RemoveFromCollection(int id)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
@@ -455,13 +469,11 @@ namespace OnlineShop4DVDS.Controllers
                 return RedirectToAction("Login");
             }
 
-            // Find the song in the user's collection
             var userSong = sqlContext.UserSongs
                 .FirstOrDefault(us => us.UserId == userId && us.SongId == id);
 
             if (userSong != null)
             {
-                // Remove the song from the collection
                 sqlContext.UserSongs.Remove(userSong);
                 sqlContext.SaveChanges();
 
@@ -472,7 +484,7 @@ namespace OnlineShop4DVDS.Controllers
                 TempData["CollectionMessage"] = "Song is not in your collection!";
             }
 
-            return RedirectToAction("SingleSong", new { id }); // Redirect back to the song details page
+            return RedirectToAction("SingleSong", new { id });
         }
 
         public IActionResult CollectionView()
@@ -537,6 +549,196 @@ namespace OnlineShop4DVDS.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        //Cart
+
+        public IActionResult CartView()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            // Retrieve the user's cart with items
+            var cart = sqlContext.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefault(c => c.UserId == userId);
+
+            // If the cart is null, create an empty list of cart items
+            var cartItems = cart?.CartItems ?? new List<CartItem>();
+
+            // Fetch item details (name and image) for each cart item
+            var cartItemDetails = new List<CartItemDetailViewModel>();
+            foreach (var item in cartItems)
+            {
+                var itemName = GetItemName(item.ItemType, item.ItemId);
+                var itemImage = GetItemImage(item.ItemType, item.ItemId);
+                var itemPlatform = GetPlatformName(item.ItemType, item.PlatformId);
+
+                // Debugging: Print item details to the console
+                Console.WriteLine($"ItemType: {item.ItemType}, ItemId: {item.ItemId}, ItemName: {itemName}, ItemImage: {itemImage}");
+
+                var itemDetail = new CartItemDetailViewModel
+                {
+                    CartItem = item,
+                    ItemName = itemName,
+                    ItemImage = itemImage,
+                    PlatformName = itemPlatform
+                };
+                cartItemDetails.Add(itemDetail);
+            }
+
+            // Pass the cart item details to the view
+            return View(cartItemDetails);
+        }
+
+        // Helper method to get item name
+        private string GetItemName(string itemType, int itemId)
+        {
+            switch (itemType)
+            {
+                case "Game":
+                    return sqlContext.Games.FirstOrDefault(g => g.GameId == itemId)?.GameName;
+                case "Movie":
+                    return sqlContext.Movies.FirstOrDefault(m => m.MovieId == itemId)?.MovieTitle;
+                case "Album":
+                    return sqlContext.Albums.FirstOrDefault(a => a.AlbumId == itemId)?.AlbumTitle;
+                default:
+                    return "Unknown Item";
+            }
+        }
+
+        // Helper method to get item image
+        private string GetItemImage(string itemType, int itemId)
+        {
+            string imageName = null;
+
+            switch (itemType)
+            {
+                case "Game":
+                    imageName = sqlContext.Games.FirstOrDefault(g => g.GameId == itemId)?.GameImage;
+                    break;
+                case "Movie":
+                    imageName = sqlContext.Movies.FirstOrDefault(m => m.MovieId == itemId)?.MovieImage;
+                    break;
+                case "Album":
+                    imageName = sqlContext.Albums.FirstOrDefault(a => a.AlbumId == itemId)?.AlbumImage;
+                    break;
+            }
+
+            // If the image name is null or empty, use the default image
+            if (string.IsNullOrEmpty(imageName))
+            {
+                return "default-image.jpg"; // Default image in the root images folder
+            }
+
+            // Include the subfolder name based on the item type
+            return $"{itemType.ToLower()}s/{imageName}";
+        }
+
+        private string GetPlatformName(string itemType, int? platformId)
+        {
+            if (itemType != "Game" || !platformId.HasValue)
+            {
+                return "N/A"; // Only games have platforms
+            }
+
+            var platform = sqlContext.Platforms.FirstOrDefault(p => p.PlatformId == platformId.Value);
+            return platform?.PlatformName ?? "N/A";
+        }
+
+        [HttpPost]
+        public IActionResult AddToCart(string itemType, int itemId, int? platformId)
+        {
+            if (HttpContext.Session.GetString("UserEmail") == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            // Retrieve or create the user's cart
+            var cart = sqlContext.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (cart == null)
+            {
+                cart = new Cart { UserId = userId.Value };
+                sqlContext.Carts.Add(cart);
+            }
+
+            // Retrieve the item price based on the item type
+            decimal price = 0;
+            switch (itemType)
+            {
+                case "Game":
+                    var game = sqlContext.Games.Find(itemId);
+                    price = game?.GamePrice ?? 0;
+                    break;
+                case "Movie":
+                    var movie = sqlContext.Movies.Find(itemId);
+                    price = movie?.MoviePrice ?? 0;
+                    break;
+                case "Album":
+                    var album = sqlContext.Albums.Find(itemId);
+                    price = album?.AlbumPrice ?? 0;
+                    break;
+            }
+
+            if (price == 0)
+            {
+                TempData["ErrorMessage"] = "Invalid item selected.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Check if the item is already in the cart
+            var existingItem = cart.CartItems
+                .FirstOrDefault(item => item.ItemType == itemType && item.ItemId == itemId && item.PlatformId == platformId);
+
+            if (existingItem != null)
+            {
+                // If the item is already in the cart, increase the quantity
+                existingItem.Quantity++;
+            }
+            else
+            {
+                // If the item is not in the cart, add it
+                cart.CartItems.Add(new CartItem
+                {
+                    ItemType = itemType,
+                    ItemId = itemId,
+                    PlatformId = platformId,
+                    Quantity = 1,
+                    Price = price
+                });
+            }
+
+            // Save changes to the database
+            sqlContext.SaveChanges();
+
+            // Redirect to the cart view
+            return RedirectToAction("CartView");
+        }
+
+        [HttpPost]
+        public IActionResult RemoveFromCart(int cartItemId)
+        {
+            // Retrieve the cart item from the database
+            var cartItem = sqlContext.CartItems.FirstOrDefault(ci => ci.CartItemId == cartItemId);
+
+            if (cartItem != null)
+            {
+                // Remove the cart item from the database
+                sqlContext.CartItems.Remove(cartItem);
+                sqlContext.SaveChanges();
+            }
+
+            // Redirect back to the cart view
+            return RedirectToAction("CartView");
         }
     }
 }

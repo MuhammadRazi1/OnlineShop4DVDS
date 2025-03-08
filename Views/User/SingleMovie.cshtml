@@ -83,7 +83,14 @@
                             </div>
                         </div>
                         <div class="anime__details__btn">
-                            <a href="#" class="follow-btn"><i class="fa fa-heart-o"></i> Add to Cart</a>
+                            <form asp-action="AddToCart" asp-controller="User" method="post">
+                                <input type="hidden" name="ItemType" value="Movie" /> <!-- Or "Album" -->
+                                <input type="hidden" name="ItemId" value="@Model.MovieId" /> <!-- Or AlbumId -->
+                                <!-- Add to Cart Button -->
+                                <button type="submit" class="follow-btn">
+                                    <i class="fa fa-heart-o"></i> Add to Cart
+                                </button>
+                            </form>
                             <a asp-controller="User" asp-action="MovieTrailer" asp-route-id="@Model.MovieId" class="watch-btn">
                                 <span>Watch Trailer</span> <i class="fa fa-angle-right"></i>
                             </a>
@@ -98,73 +105,42 @@
                     <div class="section-title">
                         <h5>Reviews</h5>
                     </div>
-                    <div class="anime__review__item">
-                        <div class="anime__review__item__pic">
-                            <img src="img/anime/review-1.jpg" alt="">
-                        </div>
-                        <div class="anime__review__item__text">
-                            <h6>Chris Curry - <span>1 Hour ago</span></h6>
-                            <p>
-                                whachikan Just noticed that someone categorized this as belonging to the genre
-                                "demons" LOL
-                            </p>
-                        </div>
-                    </div>
-                    <div class="anime__review__item">
-                        <div class="anime__review__item__pic">
-                            <img src="img/anime/review-2.jpg" alt="">
-                        </div>
-                        <div class="anime__review__item__text">
-                            <h6>Lewis Mann - <span>5 Hour ago</span></h6>
-                            <p>Finally it came out ages ago</p>
-                        </div>
-                    </div>
-                    <div class="anime__review__item">
-                        <div class="anime__review__item__pic">
-                            <img src="img/anime/review-3.jpg" alt="">
-                        </div>
-                        <div class="anime__review__item__text">
-                            <h6>Louis Tyler - <span>20 Hour ago</span></h6>
-                            <p>Where is the episode 15 ? Slow update! Tch</p>
-                        </div>
-                    </div>
-                    <div class="anime__review__item">
-                        <div class="anime__review__item__pic">
-                            <img src="img/anime/review-4.jpg" alt="">
-                        </div>
-                        <div class="anime__review__item__text">
-                            <h6>Chris Curry - <span>1 Hour ago</span></h6>
-                            <p>
-                                whachikan Just noticed that someone categorized this as belonging to the genre
-                                "demons" LOL
-                            </p>
-                        </div>
-                    </div>
-                    <div class="anime__review__item">
-                        <div class="anime__review__item__pic">
-                            <img src="img/anime/review-5.jpg" alt="">
-                        </div>
-                        <div class="anime__review__item__text">
-                            <h6>Lewis Mann - <span>5 Hour ago</span></h6>
-                            <p>Finally it came out ages ago</p>
-                        </div>
-                    </div>
-                    <div class="anime__review__item">
-                        <div class="anime__review__item__pic">
-                            <img src="img/anime/review-6.jpg" alt="">
-                        </div>
-                        <div class="anime__review__item__text">
-                            <h6>Louis Tyler - <span>20 Hour ago</span></h6>
-                            <p>Where is the episode 15 ? Slow update! Tch</p>
-                        </div>
-                    </div>
+                    @if (ViewBag.Reviews != null && ((List<Review>)ViewBag.Reviews).Any())
+                    {
+                        foreach (var review in (List<Review>)ViewBag.Reviews)
+                        {
+                            <div class="anime__review__item">
+                                <div class="anime__review__item__pic">
+                                    <i class="fa fa-user-circle" style="font-size: 50px; color: #ccc;"></i>
+                                </div>
+                                <div class="anime__review__item__text">
+                                    <h6>@review.User.UserName - <span>@review.ReviewDate.ToString("MM/dd/yyyy")</span></h6>
+                                    <p>@review.ReviewText</p>
+                                    <div class="star-rating">
+                                        @for (int i = 1; i <= review.ReviewRating; i++)
+                                        {
+                                            <span class="star active">&#9733;</span>
+                                        }
+                                        @for (int i = review.ReviewRating + 1; i <= 5; i++)
+                                        {
+                                            <span class="star">&#9733;</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p>No reviews available for this movie.</p>
+                    }
                 </div>
                 @{
                     ViewBag.AlbumId = null;
                     ViewBag.GameId = null;
                     ViewBag.MovieId = Model.MovieId;
                 }
-                <partial name="_ReviewForm" />
+                @await Html.PartialAsync("_ReviewForm", new OnlineShop4DVDS.Models.Review { MovieId = Model.MovieId })
             </div>
             <div class="col-lg-4 col-md-4">
                 <div class="anime__details__sidebar">
@@ -205,6 +181,16 @@
 
         int halfStars = remainder >= 0.5m ? 1 : 0;
         int emptyStars = 5 - fullStars - halfStars;
+
+        // Debugging output
+        <text>
+            <script>
+                console.log("Rating: @rating");
+                console.log("Full Stars: @fullStars");
+                console.log("Half Stars: @halfStars");
+                console.log("Empty Stars: @emptyStars");
+            </script>
+        </text>
 
         return (fullStars, halfStars, emptyStars);
     }

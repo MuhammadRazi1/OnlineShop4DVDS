@@ -48,17 +48,20 @@
                                     <ul>
                                         <li><span>Release Date:</span> @Model.AlbumReleaseDate</li>
                                         <li><span>Artist:</span> @Model.Artist.ArtistName</li>
-                                    </ul>
-                                </div>
-                                <div class="col-lg-6 col-md-6">
-                                    <ul>
                                         <li><span>Price:</span> @Model.AlbumPrice</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="anime__details__btn">
-                            <a href="#" class="follow-btn">Add to Cart</a>
+                            <form asp-action="AddToCart" asp-controller="User" method="post">
+                                <input type="hidden" name="ItemType" value="Album" /> <!-- Or "Album" -->
+                                <input type="hidden" name="ItemId" value="@Model.AlbumId" /> <!-- Or AlbumId -->
+                                <!-- Add to Cart Button -->
+                                <button type="submit" class="follow-btn">
+                                    <i class="fa fa-heart-o"></i> Add to Cart
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -72,11 +75,10 @@
                     </div>
                     @if (ViewBag.Songs != null && ((List<Song>)ViewBag.Songs).Any())
                     {
-                        var userCollection = ViewBag.UserCollection as List<int>; // Get the user's collection
+                        var userCollection = ViewBag.UserCollection as List<int>;
 
                         foreach (var song in (List<Song>)ViewBag.Songs)
                         {
-                            // Check if the song is in the user's collection
                             var isInCollection = userCollection.Contains(song.SongId);
 
                             <div style="width: 100%; margin-bottom: 20px; padding: 15px; border: 1px solid #333; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); background-color: transparent; display: flex; align-items: center;">
@@ -118,42 +120,46 @@
                     {
                         <p>No songs available for this album.</p>
                     }
-                    
-                   
+                        <div class="anime__details__review">
+                            <div class="section-title">
+                                <h5>Reviews</h5>
+                            </div>
+                            @if (ViewBag.Reviews != null && ((List<Review>)ViewBag.Reviews).Any())
+                            {
+                                foreach (var review in (List<Review>)ViewBag.Reviews)
+                                {
+                                    <div class="anime__review__item">
+                                        <div class="anime__review__item__pic">
+                                            <i class="fa fa-user-circle" style="font-size: 50px; color: #ccc;"></i>
+                                        </div>
+                                        <div class="anime__review__item__text">
+                                            <h6>@review.User.UserName - <span>@review.ReviewDate.ToString("MM/dd/yyyy")</span></h6>
+                                            <p>@review.ReviewText</p>
+                                            <div class="star-rating">
+                                                @for (int i = 1; i <= review.ReviewRating; i++)
+                                                {
+                                                    <span class="star active">&#9733;</span>
+                                                }
+                                                @for (int i = review.ReviewRating + 1; i <= 5; i++)
+                                                {
+                                                    <span class="star">&#9733;</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <p>No reviews available for this album.</p>
+                            }
                 </div>
                 @{
                     ViewBag.AlbumId = Model.AlbumId;
                     ViewBag.GameId = null;
                     ViewBag.MovieId = null;
                 }
-                <partial name="_ReviewForm" />
-            </div>
-            <div class="col-lg-4 col-md-4">
-                <div class="anime__details__sidebar">
-                    <div class="section-title">
-                        <h5>you might like...</h5>
-                    </div>
-                    <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-1.jpg">
-                        <div class="ep">18 / ?</div>
-                        <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                        <h5><a href="#">Boruto: Naruto next generations</a></h5>
-                    </div>
-                    <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-2.jpg">
-                        <div class="ep">18 / ?</div>
-                        <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                        <h5><a href="#">The Seven Deadly Sins: Wrath of the Gods</a></h5>
-                    </div>
-                    <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-3.jpg">
-                        <div class="ep">18 / ?</div>
-                        <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                        <h5><a href="#">Sword art online alicization war of underworld</a></h5>
-                    </div>
-                    <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-4.jpg">
-                        <div class="ep">18 / ?</div>
-                        <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                        <h5><a href="#">Fate/stay night: Heaven's Feel I. presage flower</a></h5>
-                    </div>
-                </div>
+                @await Html.PartialAsync("_ReviewForm", new OnlineShop4DVDS.Models.Review { AlbumId = Model.AlbumId })
             </div>
         </div>
     </div>
@@ -163,18 +169,13 @@
     <script>
         $(document).ready(function () {
             var collectionMessage = '@TempData["CollectionMessage"]';
+            var reviewMessage = '@TempData["ReviewMessage"]';
+
             if (collectionMessage) {
-                alert(collectionMessage); // Display the alert
+                alert(collectionMessage);
             }
-        });
-    </script>
-}
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            var collectionMessage = '@TempData["ReviewMessage"]';
-            if (collectionMessage) {
-                alert(collectionMessage); // Display the alert
+            if (reviewMessage) {
+                alert(reviewMessage);
             }
         });
     </script>

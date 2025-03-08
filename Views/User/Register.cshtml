@@ -40,15 +40,15 @@
                         </div>
                         <span asp-validation-for="UserPassword" class="text-danger"></span>
                         <div class="input__item">
-                            <input asp-for="UserPassword" type="text" placeholder="Password">
+                            <input asp-for="UserPassword" type="password" placeholder="Password">
                             <span class="icon_lock"></span>
                         </div>
                         <span asp-validation-for="UserConfirmPassword" class="text-danger"></span>
                         <div class="input__item">
-                            <input asp-for="UserConfirmPassword" type="text" placeholder="Confirm Password">
+                            <input asp-for="UserConfirmPassword" type="password" placeholder="Confirm Password">
                             <span class="icon_lock"></span>
                         </div>
-                        <button type="submit" class="site-btn">Login Now</button>
+                        <button type="submit" class="site-btn">Register</button>
                     </form>
                     <h5>Already have an account? <a asp-controller="User" asp-action="Login" >Log In!</a></h5>
                 </div>
