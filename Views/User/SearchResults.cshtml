@@ -1,0 +1,145 @@
+﻿@model SearchResultsViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Breadcrumb Begin -->
+<div class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__links">
+                    <a asp-action="Index" asp-controller="User"><i class="fa fa-home"></i> Home</a>
+                    <span>Search Result</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+<!-- Product Section Begin -->
+<section class="product-page spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="product__page__content">
+                    <div class="product__page__title">
+                        <div class="row">
+                            <div class="col-lg-8 col-md-8 col-sm-6">
+                                <div class="section-title">
+                                    <h4>Search Results</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        @if (Model.Movies.Any() || Model.Albums.Any() || Model.Songs.Any() || Model.Games.Any())
+                        {
+                            <div class="search-results">
+                                @if (Model.Movies.Any())
+                                {
+                                    <h3>Movies</h3>
+                                    @foreach (var movie in Model.Movies)
+                                    {
+                                        <div class="col-lg-4 col-md-6 col-sm-6">
+                                            <div class="product__item">
+                                                <div class="product__item__pic">
+                                                    <img src="~/images/movies/@movie.MovieImage"
+                                                         style="width: 100%; height: 320px; object-fit: cover;"
+                                                         alt="@movie.MovieTitle" />
+                                                </div>
+                                                <div class="product__item__text">
+                                                    <ul>
+                                                        @foreach (var movieGenre in movie.MovieGenres)
+                                                        {
+                                                            <li>@movieGenre.Genre.GenreName</li>
+                                                        }
+                                                    </ul>
+                                                    <h5><a asp-action="SingleMovie" asp-controller="User" asp-route-id="@movie.MovieId">@movie.MovieTitle</a></h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
+                                @if (Model.Albums.Any())
+                                {
+                                    <h3>Albums</h3>
+                                    @foreach (var album in Model.Albums)
+                                    {
+                                        <div class="col-lg-4 col-md-6 col-sm-6">
+                                            <div class="product__item">
+                                                <div class="product__item__pic">
+                                                    <img src="~/images/albums/@album.AlbumImage"
+                                                         style="width: 100%; height: 320px; object-fit: cover;"
+                                                         alt="@album.AlbumTitle" />
+                                                </div>
+                                                <div class="product__item__text">
+                                                    <h5><a asp-action="SingleAlbum" asp-controller="User" asp-route-id="@album.AlbumId">@album.AlbumTitle</a></h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
+                                @if (Model.Songs.Any())
+                                {
+                                    <h3>Songs</h3>
+                                    @foreach (var song in Model.Songs)
+                                    {
+                                        <div class="col-lg-4 col-md-6 col-sm-6">
+                                            <div class="product__item">
+                                                <div class="product__item__pic">
+                                                    <img src="~/images/albums/@song.Album.AlbumImage"
+                                                         style="width: 100%; height: 320px; object-fit: cover;"
+                                                         alt="@song.SongName" />
+                                                </div>
+                                                <div class="product__item__text">
+                                                    <ul>
+                                                        <li>@song.Category.CategoryName</li>
+                                                    </ul>
+                                                    <h5>
+                                                        <a asp-action="SingleSong" asp-controller="User" asp-route-id="@song.SongId">
+                                                            @song.SongName
+                                                        </a>
+                                                    </h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
+                                @if (Model.Games.Any())
+                                {
+                                    <h3>Games</h3>
+                                    @foreach (var game in Model.Games)
+                                    {
+                                        <div class="col-lg-4 col-md-6 col-sm-6">
+                                            <div class="product__item">
+                                                <div class="product__item__pic">
+                                                    <img src="~/images/games/@game.GameImage"
+                                                         style="width: 100%; height: 320px; object-fit: contain; max-width: 100%;"
+                                                         alt="@game.GameName" />
+                                                </div>
+                                                <div class="product__item__text">
+                                                    <h5><a asp-action="SingleGame" asp-controller="User" asp-route-id="@game.GameId">@game.GameName</a></h5>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p>No results found.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Product Section End -->

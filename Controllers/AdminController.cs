@@ -1190,5 +1190,168 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
             return RedirectToAction("FeedbackView");
         }
+
+        //User View
+
+        public IActionResult UserView()
+        {
+            var users = sqlContext.Users.ToList();
+            return View(users);
+        }
+
+        public IActionResult UserUpdate(int id)
+        {
+            var user = sqlContext.Users.FirstOrDefault(u => u.UserId == id);
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult UserUpdate(User user)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(user);
+            }
+
+            var existingUser = sqlContext.Users.FirstOrDefault(c => c.UserId == user.UserId);
+            if (existingUser == null)
+            {
+                return RedirectToAction("UserView");
+            }
+
+            existingUser.UserName = user.UserName;
+            existingUser.UserEmail = user.UserEmail;
+            existingUser.UserRole = user.UserRole;
+            sqlContext.Users.Update(existingUser);
+            sqlContext.SaveChanges();
+
+            return RedirectToAction("UserView");
+        }
+
+        //Supplier
+
+        public IActionResult SupplierView()
+        {
+            var supplier = sqlContext.Suppliers.ToList();
+            return View(supplier);
+        }
+
+        public IActionResult SupplierInsert()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SupplierInsert(Supplier supplier)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(supplier);
+            }
+
+            sqlContext.Suppliers.Add(supplier);
+            sqlContext.SaveChanges();
+            return RedirectToAction("SupplierView");
+        }
+
+        public IActionResult SupplierUpdate(int id)
+        {
+            var supplier = sqlContext.Suppliers.FirstOrDefault(s => s.SupplierId == id);
+            return View(supplier);
+        }
+
+        [HttpPost]
+        public IActionResult SupplierUpdate(Supplier supplier)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(supplier);
+            }
+
+            var existingSupplier = sqlContext.Suppliers.FirstOrDefault(s => s.SupplierId == supplier.SupplierId);
+            if(existingSupplier == null)
+            {
+                return View(supplier);
+            }
+
+            existingSupplier.SupplierName = supplier.SupplierName;
+            existingSupplier.SupplierEmail = supplier.SupplierEmail;
+            existingSupplier.SupplierPhone = supplier.SupplierPhone;
+            sqlContext.Suppliers.Update(existingSupplier);
+            sqlContext.SaveChanges();
+            return RedirectToAction("SupplierView");
+        }
+
+        [HttpPost]
+        public IActionResult SupplierDelete(int id)
+        {
+            var supplier = sqlContext.Suppliers.FirstOrDefault(s => s.SupplierId == id);
+            sqlContext.Suppliers.Remove(supplier);
+            sqlContext.SaveChanges();
+            return RedirectToAction("SupplierView");
+        }
+
+        //Producer
+
+        public IActionResult ProducerView()
+        {
+            var producer = sqlContext.Producers.ToList();
+            return View(producer);
+        }
+
+        public IActionResult ProducerInsert()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ProducerInsert(Producer producer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(producer);
+            }
+
+            sqlContext.Producers.Add(producer);
+            sqlContext.SaveChanges();
+            return RedirectToAction("ProducerView");
+        }
+
+        public IActionResult ProducerUpdate(int id)
+        {
+            var producer = sqlContext.Producers.FirstOrDefault(s => s.ProducerId == id);
+            return View(producer);
+        }
+
+        [HttpPost]
+        public IActionResult ProducerUpdate(Producer producer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(producer);
+            }
+
+            var existingProducer = sqlContext.Producers.FirstOrDefault(s => s.ProducerId == producer.ProducerId);
+            if (existingProducer == null)
+            {
+                return View(producer);
+            }
+
+            existingProducer.ProducerName = producer.ProducerName;
+            existingProducer.ProducerEmail = producer.ProducerEmail;
+            existingProducer.ProducerPhone = producer.ProducerPhone;
+            sqlContext.Producers.Update(existingProducer);
+            sqlContext.SaveChanges();
+            return RedirectToAction("ProducerView");
+        }
+
+        [HttpPost]
+        public IActionResult ProducerDelete(int id)
+        {
+            var producer = sqlContext.Producers.FirstOrDefault(s => s.ProducerId == id);
+            sqlContext.Producers.Remove(producer);
+            sqlContext.SaveChanges();
+            return RedirectToAction("ProducerView");
+        }
     }
 }

@@ -54,14 +54,57 @@
             </div>
             <div class="col-lg-6">
                 <div class="login__social__links">
-                    <h3>Login With:</h3>
-                    <ul>
-                        <li>
-                            <a href="#" class="facebook"><i class="fa fa-facebook"></i> Sign in With Facebook</a>
-                        </li>
-                        <li><a href="#" class="google"><i class="fa fa-google"></i> Sign in With Google</a></li>
-                        <li><a href="#" class="twitter"><i class="fa fa-twitter"></i> Sign in With Twitter</a></li>
-                    </ul>
+                    <h3>Order History:</h3>
+                    @if (ViewBag.Orders != null)
+                    {
+                        <table class="table table-bordered">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Order Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Items</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var order in ViewBag.Orders)
+                                {
+                                    <tr>
+                                        <td>@order.OrderId</td>
+                                        <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                                        <td>$@order.TotalAmount</td>
+                                        <td>
+                                            <table class="table table-sm table-borderless">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Type</th>
+                                                        <th>Name</th>
+                                                        <th>Quantity</th>
+                                                        <th>Price</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var item in order.CartItems)
+                                                    {
+                                                        <tr>
+                                                            <td>@item.ItemType</td>
+                                                            <td>@(item.Item != null ? item.Item.Name : "Unknown Item")</td>
+                                                            <td>@item.Quantity</td>
+                                                            <td>$@item.Price</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p>No orders found.</p>
+                    }
                 </div>
             </div>
         </div>

@@ -22,6 +22,7 @@
     <Folder Include="wwwroot\images\movies\" />
     <Folder Include="wwwroot\videos\games\" />
     <Folder Include="wwwroot\videos\movies\" />
+    <Folder Include="wwwroot\videos\songs\" />
   </ItemGroup>
 
 </Project>

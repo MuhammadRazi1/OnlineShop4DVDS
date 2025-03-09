@@ -170,13 +170,40 @@ namespace OnlineShop4DVDS.Controllers
                 return RedirectToAction("Login");
             }
 
-            var userName = HttpContext.Session.GetString("UserName");
+            var orders = sqlContext.Orders
+                .Where(o => o.UserId == user.UserId)
+                .Include(o => o.CartItems)
+                .ToList();
 
-            if (!string.IsNullOrEmpty(userName))
+            foreach (var order in orders)
             {
-                ViewBag.UserName = userName;
+                foreach (var cartItem in order.CartItems)
+                {
+                    switch (cartItem.ItemType)
+                    {
+                        case "Game":
+                            cartItem.Item = sqlContext.Games
+                                .Where(g => g.GameId == cartItem.ItemId)
+                                .Select(g => new { Name = g.GameName })
+                                .FirstOrDefault();
+                            break;
+                        case "Movie":
+                            cartItem.Item = sqlContext.Movies
+                                .Where(m => m.MovieId == cartItem.ItemId)
+                                .Select(m => new { Name = m.MovieTitle })
+                                .FirstOrDefault();
+                            break;
+                        case "Album":
+                            cartItem.Item = sqlContext.Albums
+                                .Where(a => a.AlbumId == cartItem.ItemId)
+                                .Select(a => new { Name = a.AlbumTitle })
+                                .FirstOrDefault();
+                            break;
+                    }
+                }
             }
 
+            ViewBag.Orders = orders;
             return View(user);
         }
 
@@ -196,24 +223,28 @@ namespace OnlineShop4DVDS.Controllers
                 return RedirectToAction("Login");
             }
 
+            // Check if the new email is already in use by another user
             if (sqlContext.Users.Any(u => u.UserEmail == updateUser.UserEmail && u.UserEmail != useremail))
             {
                 ModelState.AddModelError("UserEmail", "This email is already in use.");
                 return View(updateUser);
             }
 
+            // Update the user's profile
             user.UserEmail = updateUser.UserEmail;
             user.UserName = updateUser.UserName;
 
             sqlContext.SaveChanges();
 
+            // Update the session with the new user details
             HttpContext.Session.SetString("UserEmail", user.UserEmail);
             HttpContext.Session.SetString("UserName", user.UserName);
 
             Console.WriteLine($"User email updated to: {HttpContext.Session.GetString("UserEmail")}");
             Console.WriteLine($"User name updated to: {HttpContext.Session.GetString("UserName")}");
 
-            return RedirectToAction("Profile");
+            // Redirect back to the ProfileUpdate page
+            return RedirectToAction("ProfileUpdate");
         }
 
         //Account Delete
@@ -320,6 +351,12 @@ namespace OnlineShop4DVDS.Controllers
             return View(song);
         }
 
+        public IActionResult SongVideo(int id)
+        {
+            var song = sqlContext.Songs.FirstOrDefault(s => s.SongId == id);
+            return View(song);
+        }
+
         //Game Page
 
         public IActionResult GamePage()
@@ -391,6 +428,12 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult NewsPage()
         {
             var news = sqlContext.News.ToList();
+            return View(news);
+        }
+
+        public IActionResult SingleNews(int id)
+        {
+            var news = sqlContext.News.FirstOrDefault(n => n.NewsId == id);
             return View(news);
         }
 
@@ -559,7 +602,7 @@ namespace OnlineShop4DVDS.Controllers
 
             if (userId == null)
             {
-                return RedirectToAction("Login", "User");
+                return RedirectToAction("Login");
             }
 
             // Retrieve the user's cart with items
@@ -590,7 +633,8 @@ namespace OnlineShop4DVDS.Controllers
                 };
                 cartItemDetails.Add(itemDetail);
             }
-
+            var userAddress = sqlContext.UserAddresses.FirstOrDefault(ua => ua.UserId == userId);
+            ViewBag.UserAddress = userAddress;
             // Pass the cart item details to the view
             return View(cartItemDetails);
         }
@@ -739,6 +783,107 @@ namespace OnlineShop4DVDS.Controllers
 
             // Redirect back to the cart view
             return RedirectToAction("CartView");
+        }
+
+        [HttpPost]
+        public IActionResult Checkout(string phone, string country, string city, string address)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return RedirectToAction("Login", "User");
+            }
+
+            // Retrieve the user's cart
+            var cart = sqlContext.Carts
+                .Include(c => c.CartItems)
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (cart == null || !cart.CartItems.Any())
+            {
+                TempData["ErrorMessage"] = "Your cart is empty.";
+                return RedirectToAction("CartView");
+            }
+
+            // Save the user's address if it doesn't already exist
+            var userAddress = sqlContext.UserAddresses.FirstOrDefault(ua => ua.UserId == userId);
+            if (userAddress == null)
+            {
+                userAddress = new UserAddress
+                {
+                    UserId = userId.Value,
+                    Phone = phone,
+                    Country = country,
+                    City = city,
+                    Address = address
+                };
+                sqlContext.UserAddresses.Add(userAddress);
+            }
+            else
+            {
+                // Update the existing address (optional)
+                userAddress.Phone = phone;
+                userAddress.Country = country;
+                userAddress.City = city;
+                userAddress.Address = address;
+            }
+
+            // Save the order details
+            var order = new Order
+            {
+                UserId = userId.Value,
+                Phone = phone,
+                Country = country,
+                City = city,
+                Address = address,
+                OrderDate = DateTime.UtcNow,
+                TotalAmount = cart.CartItems.Sum(item => item.Price * item.Quantity)
+            };
+
+            sqlContext.Orders.Add(order);
+
+            // Clear the cart
+            sqlContext.CartItems.RemoveRange(cart.CartItems);
+
+            // Save changes to the database
+            sqlContext.SaveChanges();
+
+            TempData["SuccessMessage"] = "Your order has been placed successfully!";
+
+            // Redirect to the thank you page
+            return RedirectToAction("CartView");
+        }
+
+        //Search
+
+        public IActionResult SearchResults(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return View(new SearchResultsViewModel()); // Return an empty model if no query
+            }
+
+            var model = new SearchResultsViewModel
+            {
+                Movies = sqlContext.Movies
+                    .Where(m => m.MovieTitle.Contains(query))
+                    .ToList(),
+
+                Albums = sqlContext.Albums
+                    .Where(a => a.AlbumTitle.Contains(query))
+                    .ToList(),
+
+                Songs = sqlContext.Songs
+                    .Where(s => s.SongName.Contains(query))
+                    .ToList(),
+
+                Games = sqlContext.Games
+                    .Where(g => g.GameName.Contains(query))
+                    .ToList()
+            };
+
+            return View(model);
         }
     }
 }

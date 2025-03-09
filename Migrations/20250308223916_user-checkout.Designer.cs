@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineShop4DVDS.SqlDbContext;
 
@@ -11,9 +12,11 @@ using OnlineShop4DVDS.SqlDbContext;
 namespace OnlineShop4DVDS.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    partial class SqlContextModelSnapshot : ModelSnapshot
+    [Migration("20250308223916_user-checkout")]
+    partial class usercheckout
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,9 +168,6 @@ namespace OnlineShop4DVDS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OrderId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("PlatformId")
                         .HasColumnType("int");
 
@@ -180,8 +180,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.HasKey("CartItemId");
 
                     b.HasIndex("CartId");
-
-                    b.HasIndex("OrderId");
 
                     b.ToTable("CartItems");
                 });
@@ -469,31 +467,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.ToTable("Platforms");
                 });
 
-            modelBuilder.Entity("OnlineShop4DVDS.Models.Producer", b =>
-                {
-                    b.Property<int>("ProducerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProducerId"));
-
-                    b.Property<string>("ProducerEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProducerName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProducerPhone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ProducerId");
-
-                    b.ToTable("Producers");
-                });
-
             modelBuilder.Entity("OnlineShop4DVDS.Models.Review", b =>
                 {
                     b.Property<int>("ReviewId")
@@ -566,31 +539,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Songs");
-                });
-
-            modelBuilder.Entity("OnlineShop4DVDS.Models.Supplier", b =>
-                {
-                    b.Property<int>("SupplierId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierId"));
-
-                    b.Property<string>("SupplierEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupplierPhone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("SupplierId");
-
-                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.User", b =>
@@ -703,13 +651,7 @@ namespace OnlineShop4DVDS.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OnlineShop4DVDS.Models.Order", "Order")
-                        .WithMany("CartItems")
-                        .HasForeignKey("OrderId");
-
                     b.Navigation("Cart");
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.Feedback", b =>
@@ -909,11 +851,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.Navigation("MovieGenres");
 
                     b.Navigation("Reviews");
-                });
-
-            modelBuilder.Entity("OnlineShop4DVDS.Models.Order", b =>
-                {
-                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.Platform", b =>

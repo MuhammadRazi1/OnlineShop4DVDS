@@ -30,7 +30,10 @@ namespace OnlineShop4DVDS.SqlDbContext
         public DbSet<UserSong> UserSongs { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
-        //public DbSet<CartItemDetailViewModel> cartItemDetailViewModels { get; set; }
+        public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<Producer> Producers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -142,6 +145,11 @@ namespace OnlineShop4DVDS.SqlDbContext
                 .HasOne(us => us.Song)
                 .WithMany(s => s.UserSongs)
                 .HasForeignKey(us => us.SongId);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.CartItems)
+                .WithOne(ci => ci.Order)
+                .HasForeignKey(ci => ci.OrderId);
         }
     }
 }

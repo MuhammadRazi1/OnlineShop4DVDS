@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<!DOCTYPE html>
 <html lang="zxx">
 
 <head>
@@ -23,8 +27,67 @@
     <link rel="stylesheet" href="~/css/owl.carousel.min.css" type="text/css">
     <link rel="stylesheet" href="~/css/slicknav.min.css" type="text/css">
     <link rel="stylesheet" href="~/css/style.css" type="text/css">
-</head>
 
+    <style>
+        .custom-search-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background: #0b0c2a;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+            width: 350px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Close Button */
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* Search Input */
+        .modal-content input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        /* Search Button */
+        .modal-content button {
+            padding: 10px 20px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            .modal-content button:hover {
+                background-color: #cc0000;
+            }
+    </style>
+</head>
 <body>
     <!-- Page Preloder -->
     <div id="preloder">
@@ -37,8 +100,8 @@
             <div class="row">
                 <div class="col-lg-2">
                     <div class="header__logo">
-                        <a href="~/./index.html">
-                            <img src="~/img/logo.png" alt="">
+                        <a asp-controller="User" asp-action="Index">
+                            <h1 class="text-white" style="font-size: 22px; margin: 0; padding: 0;">OnlineShop<span class="text-danger">4DVDS</span></h1>
                         </a>
                     </div>
                 </div>
@@ -46,8 +109,10 @@
                     <div class="header__nav">
                         <nav class="header__menu mobile-menu">
                             <ul>
-                                <li class="active"><a href="~/~/./index.html">Homepage</a></li>
-                                <li>
+                                <li class="@(currentController == "User" && currentAction == "Index" ? "active" : "")">
+                                    <a asp-controller="User" asp-action="Index">Homepage</a>
+                                </li>
+                                <li class="@(currentController == "User" && (currentAction == "AlbumPage" || currentAction == "SongPage" || currentAction == "GamePage" || currentAction == "MoviePage") ? "active" : "")">
                                     <a>DVDs <span class="arrow_carrot-down"></span></a>
                                     <ul class="dropdown">
                                         <li><a asp-action="AlbumPage" asp-controller="User">Song Albums</a></li>
@@ -56,15 +121,30 @@
                                         <li><a asp-action="MoviePage" asp-controller="User">Movies</a></li>
                                     </ul>
                                 </li>
-                                <li><a asp-action="NewsPage" asp-controller="User">News</a></li>
-                                <li><a asp-action="FeedbackPage" asp-controller="User">Feedback</a></li>
+                                <li class="@(currentController == "User" && currentAction == "NewsPage" ? "active" : "")">
+                                    <a asp-action="NewsPage" asp-controller="User">News</a>
+                                </li>
+                                <li class="@(currentController == "User" && currentAction == "FeedbackPage" ? "active" : "")">
+                                    <a asp-action="FeedbackPage" asp-controller="User">Feedback</a>
+                                </li>
                             </ul>
                         </nav>
                     </div>
                 </div>
                 <div class="col-lg-2">
                     <div class="header__right">
-                        <a href="~/#" class="search-switch"><span class="icon_search"></span></a>
+                        <a href="javascript:void(0);" onclick="openSearchModal()" style="cursor: pointer;">
+                            <span class="icon_search"></span>
+                        </a>
+                        <div id="searchModal" class="custom-search-modal">
+                            <div class="modal-content">
+                                <span class="close-btn" onclick="closeSearchModal()">&times;</span>
+                                <form asp-controller="User" asp-action="SearchResults" method="get">
+                                    <input type="text" name="query" id="search-input" placeholder="Search for movies, albums, songs, games..." required>
+                                    <button type="submit">Search</button>
+                                </form>
+                            </div>
+                        </div>
                         @if (Context.Session.GetString("UserEmail") != null)
                         {
                             <a asp-controller="User" asp-action="CartView" style="text-decoration: none; color: white; margin-right: 15px;">
@@ -164,6 +244,21 @@
                 });
             }
         });
+                function openSearchModal() {
+            document.getElementById("searchModal").style.display = "flex";
+        }
+
+        function closeSearchModal() {
+            document.getElementById("searchModal").style.display = "none";
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            var modal = document.getElementById("searchModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
     </script>
 
     <script src="~/js/jquery-3.3.1.min.js"></script>

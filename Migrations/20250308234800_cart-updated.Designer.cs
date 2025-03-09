@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineShop4DVDS.SqlDbContext;
 
@@ -11,9 +12,11 @@ using OnlineShop4DVDS.SqlDbContext;
 namespace OnlineShop4DVDS.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    partial class SqlContextModelSnapshot : ModelSnapshot
+    [Migration("20250308234800_cart-updated")]
+    partial class cartupdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,7 +168,7 @@ namespace OnlineShop4DVDS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OrderId")
+                    b.Property<int>("OrderId")
                         .HasColumnType("int");
 
                     b.Property<int?>("PlatformId")
@@ -433,6 +436,13 @@ namespace OnlineShop4DVDS.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ItemType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
@@ -467,31 +477,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.HasKey("PlatformId");
 
                     b.ToTable("Platforms");
-                });
-
-            modelBuilder.Entity("OnlineShop4DVDS.Models.Producer", b =>
-                {
-                    b.Property<int>("ProducerId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProducerId"));
-
-                    b.Property<string>("ProducerEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProducerName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProducerPhone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ProducerId");
-
-                    b.ToTable("Producers");
                 });
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.Review", b =>
@@ -566,31 +551,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Songs");
-                });
-
-            modelBuilder.Entity("OnlineShop4DVDS.Models.Supplier", b =>
-                {
-                    b.Property<int>("SupplierId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierId"));
-
-                    b.Property<string>("SupplierEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SupplierPhone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("SupplierId");
-
-                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("OnlineShop4DVDS.Models.User", b =>
@@ -705,7 +665,9 @@ namespace OnlineShop4DVDS.Migrations
 
                     b.HasOne("OnlineShop4DVDS.Models.Order", "Order")
                         .WithMany("CartItems")
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Cart");
 
