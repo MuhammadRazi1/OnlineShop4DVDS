@@ -9,7 +9,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="SongUpdate" method="post">
+        <form asp-action="SongUpdate" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="SongId" />
             <div class="form-group">
@@ -19,7 +19,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="SongFilePath" class="control-label"></label>
-                <input asp-for="SongFilePath" class="form-control" />
+                <input asp-for="SongFilePath" type="file" name="SongFilePath" class="form-control" />
                 <span asp-validation-for="SongFilePath" class="text-danger"></span>
             </div>
             <div class="form-group">

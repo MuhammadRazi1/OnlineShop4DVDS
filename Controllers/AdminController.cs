@@ -180,10 +180,6 @@ namespace OnlineShop4DVDS.Controllers
             }
 
             existingArtist.ArtistName = artist.ArtistName;
-            existingArtist.ArtistAge = artist.ArtistAge;
-            existingArtist.ArtistDateOfBirth = artist.ArtistDateOfBirth;
-            existingArtist.ArtistBio = artist.ArtistBio;
-            existingArtist.ArtistImage = artist.ArtistImage;
             existingArtist.ArtistRoleId = artist.ArtistRoleId;
 
             sqlContext.Artists.Update(existingArtist);
@@ -357,10 +353,14 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult SongInsert(Song song)
+        public IActionResult SongInsert(Song song, IFormFile SongFilePath)
         {
             if (!ModelState.IsValid)
             {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage);
+                }
                 ViewBag.Categories = sqlContext.Categories.ToList();
                 ViewBag.Albums = sqlContext.Albums.ToList();
                 return View(song);
@@ -371,6 +371,12 @@ namespace OnlineShop4DVDS.Controllers
                 ModelState.AddModelError("SongName", "Song already exists");
                 return View(song);
             }
+
+            string videoFileName = Guid.NewGuid().ToString() + "_" + SongFilePath.FileName;
+            string videoDestination = Path.Combine(env.WebRootPath, "videos/songs");
+            string videoFilePath = Path.Combine(videoDestination, videoFileName);
+            SongFilePath.CopyTo(new FileStream(videoFilePath, FileMode.Create));
+            song.SongFilePath = videoFileName;
 
             sqlContext.Songs.Add(song);
             sqlContext.SaveChanges();
@@ -395,7 +401,7 @@ namespace OnlineShop4DVDS.Controllers
         }
 
         [HttpPost]
-        public IActionResult SongUpdate(Song song)
+        public IActionResult SongUpdate(Song song, IFormFile SongFilePath)
         {
             if (!ModelState.IsValid)
             {
@@ -414,6 +420,17 @@ namespace OnlineShop4DVDS.Controllers
             existingSong.SongFilePath = song.SongFilePath;
             existingSong.CategoryId = song.CategoryId;
             existingSong.AlbumId = song.AlbumId;
+
+            string videoFileName = Guid.NewGuid().ToString() + "_" + SongFilePath.FileName;
+            string videoDestination = Path.Combine(env.WebRootPath, "videos/songs");
+            string videoFilePath = Path.Combine(videoDestination, videoFileName);
+
+            using (var stream = new FileStream(videoFilePath, FileMode.Create))
+            {
+                SongFilePath.CopyTo(stream);
+            }
+
+            existingSong.SongFilePath = videoFileName;
 
             sqlContext.Songs.Update(existingSong);
             sqlContext.SaveChanges();

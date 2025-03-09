@@ -353,6 +353,11 @@ namespace OnlineShop4DVDS.Controllers
 
         public IActionResult SongVideo(int id)
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole != "Member")
+            {
+                return RedirectToAction("Login");
+            }
             var song = sqlContext.Songs.FirstOrDefault(s => s.SongId == id);
             return View(song);
         }
@@ -872,10 +877,6 @@ namespace OnlineShop4DVDS.Controllers
 
                 Albums = sqlContext.Albums
                     .Where(a => a.AlbumTitle.Contains(query))
-                    .ToList(),
-
-                Songs = sqlContext.Songs
-                    .Where(s => s.SongName.Contains(query))
                     .ToList(),
 
                 Games = sqlContext.Games

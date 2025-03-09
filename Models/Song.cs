@@ -26,6 +26,10 @@ namespace OnlineShop4DVDS.Models
         [ForeignKey("AlbumId")]
         public virtual Album? Album { get; set; }
 
-        public ICollection<UserSong> UserSongs { get; set; }
+        public ICollection<UserSong>? UserSongs { get; set; } = new List<UserSong>();
+
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

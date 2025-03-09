@@ -66,19 +66,6 @@ namespace OnlineShop4DVDS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ArtistId"));
 
-                    b.Property<int>("ArtistAge")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ArtistBio")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("ArtistDateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ArtistImage")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ArtistName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -550,6 +537,9 @@ namespace OnlineShop4DVDS.Migrations
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SongFilePath")
                         .HasColumnType("nvarchar(max)");
