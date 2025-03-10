@@ -41,10 +41,6 @@
                         <div class="input__item">
                             <input asp-for="UserName" type="text" placeholder="Your Name">
                         </div>
-                        <div class="input__item">
-                            <input type="text" placeholder="Password">
-                            <span class="icon_lock"></span>
-                        </div>
                         <button type="submit" class="site-btn">Update Profile</button>
                         <form asp-action="DeleteAccount" method="post">
                             <button type="submit" class="site-btn" onclick="return confirm('Are you sure you want to delete your account? This action is irreversible!');">Delete Account</button>
@@ -58,44 +54,20 @@
                     @if (ViewBag.Orders != null)
                     {
                         <table class="table table-bordered">
-                            <thead class="thead-dark">
+                            <thead class="thead-light">
                                 <tr>
                                     <th>Order ID</th>
                                     <th>Order Date</th>
                                     <th>Total Amount</th>
-                                    <th>Items</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var order in ViewBag.Orders)
                                 {
-                                    <tr>
+                                    <tr class="text-white">
                                         <td>@order.OrderId</td>
                                         <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
                                         <td>$@order.TotalAmount</td>
-                                        <td>
-                                            <table class="table table-sm table-borderless">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Type</th>
-                                                        <th>Name</th>
-                                                        <th>Quantity</th>
-                                                        <th>Price</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach (var item in order.CartItems)
-                                                    {
-                                                        <tr>
-                                                            <td>@item.ItemType</td>
-                                                            <td>@(item.Item != null ? item.Item.Name : "Unknown Item")</td>
-                                                            <td>@item.Quantity</td>
-                                                            <td>$@item.Price</td>
-                                                        </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </td>
                                     </tr>
                                 }
                             </tbody>

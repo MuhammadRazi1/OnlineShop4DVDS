@@ -320,12 +320,13 @@ namespace OnlineShop4DVDS.Controllers
         [HttpPost]
         public IActionResult AlbumDelete(int id)
         {
-            var album = sqlContext.Albums.FirstOrDefault(a => a.AlbumId == id);
+            var album = sqlContext.Albums.Include(a => a.Reviews).FirstOrDefault(a => a.AlbumId == id);
             if (album == null)
             {
                 return View("AlbumView");
             }
 
+            sqlContext.Reviews.RemoveRange(album.Reviews);
             sqlContext.Albums.Remove(album);
             sqlContext.SaveChanges();
 
@@ -589,7 +590,7 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.Genres.Update(existingGenre);
             sqlContext.SaveChanges();
 
-            return RedirectToAction("GameView");
+            return RedirectToAction("GenreView");
         }
 
         //Genre Delete
@@ -902,6 +903,7 @@ namespace OnlineShop4DVDS.Controllers
             var game = sqlContext.Games
                 .Include(gg => gg.GameGenres)
                 .Include(gp => gp.GamePlatforms)
+                .Include(g => g.Reviews)
                 .FirstOrDefault(g => g.GameId == id);
 
             if(game == null)
@@ -909,6 +911,7 @@ namespace OnlineShop4DVDS.Controllers
                 return NotFound();
             }
 
+            sqlContext.Reviews.RemoveRange(game.Reviews);
             sqlContext.GameGenres.RemoveRange(game.GameGenres);
             sqlContext.GamePlatforms.RemoveRange(game.GamePlatforms);
             sqlContext.Games.Remove(game);
@@ -1087,6 +1090,7 @@ namespace OnlineShop4DVDS.Controllers
         {
             var movie = sqlContext.Movies
                 .Include(gg => gg.MovieGenres)
+                .Include(m => m.Reviews)
                 .FirstOrDefault(g => g.MovieId == id);
 
             if (movie == null)
@@ -1094,6 +1098,7 @@ namespace OnlineShop4DVDS.Controllers
                 return NotFound();
             }
 
+            sqlContext.Reviews.RemoveRange(movie.Reviews);
             sqlContext.MovieGenres.RemoveRange(movie.MovieGenres);
             sqlContext.Movies.Remove(movie);
             sqlContext.SaveChanges();
@@ -1370,5 +1375,48 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
             return RedirectToAction("ProducerView");
         }
+
+        //Order
+        public IActionResult OrderView()
+        {
+            var orders = sqlContext.Orders
+                .Include(o => o.CartItems)
+                .Join(sqlContext.Users,
+                      order => order.UserId,
+                      user => user.UserId,
+                      (order, user) => new
+                      {
+                          order.OrderId,
+                          order.OrderDate,
+                          order.TotalAmount,
+                          order.Phone,
+                          order.Country,
+                          order.City,
+                          order.Address,
+                          UserEmail = user.UserEmail,
+                          Fulfilled = order.Fulfilled // Include Fulfilled Status
+                      })
+                .ToList();
+
+            return View(orders);
+        }
+
+        [HttpPost]
+        public IActionResult ToggleOrderStatus(int id)
+        {
+            var order = sqlContext.Orders.Find(id);
+            if (order == null)
+            {
+                return Json(new { success = false });
+            }
+
+            order.Fulfilled = !order.Fulfilled;
+            sqlContext.SaveChanges();
+
+            return Json(new { success = true, newStatus = order.Fulfilled });
+        }
+
+
+
     }
 }

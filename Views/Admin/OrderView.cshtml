@@ -1,0 +1,63 @@
+﻿@model IEnumerable<dynamic>
+@{
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>User Email</th>
+            <th>Phone</th>
+            <th>Country</th>
+            <th>City</th>
+            <th>Address</th>
+            <th>Total Price</th>
+            <th>Order Date</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderId</td>
+                <td>@order.UserEmail</td>
+                <td>@order.Phone</td>
+                <td>@order.Country</td>
+                <td>@order.City</td>
+                <td>@order.Address</td>
+                <td>$@order.TotalAmount</td>
+                <td>@order.OrderDate.ToShortDateString()</td>
+                <td>
+                    <span id="status-@order.OrderId" class="badge @(order.Fulfilled ? "badge-success" : "badge-danger")">
+                        @(order.Fulfilled ? "Fulfilled" : "Pending")
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-primary" onclick="toggleOrderStatus(@order.OrderId)">
+                        Toggle Status
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function toggleOrderStatus(orderId) {
+        fetch('/Admin/ToggleOrderStatus/' + orderId, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                let statusElement = document.getElementById("status-" + orderId);
+                statusElement.innerText = data.newStatus ? "Fulfilled" : "Pending";
+                statusElement.className = data.newStatus ? "badge badge-success" : "badge badge-danger";
+            } else {
+                alert("Failed to update order status.");
+            }
+        });
+    }
+</script>

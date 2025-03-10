@@ -130,6 +130,29 @@ namespace OnlineShop4DVDS.Controllers
         {
             var username = HttpContext.Session.GetString("UserName");
 
+            var popularMovies = sqlContext.Movies
+        .OrderByDescending(m => m.MovieRating)
+        .Take(3)
+        .ToList();
+
+            var latestMovies = sqlContext.Movies
+        .OrderByDescending(m => m.MovieReleaseDate) // Sort by newest first
+        .Take(3) // Fetch top 3 latest movies
+        .ToList();
+
+            var recentSongs = sqlContext.Songs
+        .OrderByDescending(s => s.CreatedAt) // Sort by newest first
+        .Take(3) // Get top 3 most recent
+        .Include(s => s.Album)
+        .Include(c => c.Category)// Include album details
+        .ToList();
+
+            ViewBag.RecentSongs = recentSongs;
+
+            ViewBag.LatestMovies = latestMovies;
+
+            ViewBag.PopularMovies = popularMovies;
+
             ViewBag.UserName = username;
             return View();
         }
@@ -275,11 +298,26 @@ namespace OnlineShop4DVDS.Controllers
 
         //Album Page
 
-        public IActionResult AlbumPage()
+        [HttpGet]
+        public IActionResult AlbumPage(int? artistId)
         {
-            var album = sqlContext.Albums.ToList();
-            return View(album);
+            var albums = sqlContext.Albums
+                .Include(a => a.Artist)
+                .AsQueryable(); // Allows dynamic filtering
+
+            // Apply filter if an artist is selected
+            if (artistId.HasValue && artistId.Value > 0)
+            {
+                albums = albums.Where(a => a.ArtistId == artistId);
+            }
+
+            // Pass artists list for dropdown filtering
+            ViewBag.Artists = sqlContext.Artists.ToList();
+            ViewBag.SelectedArtist = artistId;
+
+            return View(albums.ToList());
         }
+
 
         public IActionResult SingleAlbum(int id)
         {
@@ -320,14 +358,33 @@ namespace OnlineShop4DVDS.Controllers
 
         //Song Page
 
-        public IActionResult SongPage()
+        [HttpGet]
+        public IActionResult SongPage(int? categoryId, int? albumId)
         {
-            var song = sqlContext.Songs
-                .Include(c => c.Category)
-                .Include(a => a.Album)
-                .ToList();
-            return View(song);
+            var songs = sqlContext.Songs
+                .Include(s => s.Category)
+                .Include(s => s.Album)
+                .AsQueryable();  // Allows dynamic filtering
+
+            // Apply filters if provided
+            if (categoryId.HasValue && categoryId.Value > 0)
+            {
+                songs = songs.Where(s => s.CategoryId == categoryId);
+            }
+            if (albumId.HasValue && albumId.Value > 0)
+            {
+                songs = songs.Where(s => s.AlbumId == albumId);
+            }
+
+            // Pass category and album lists for the dropdown filters
+            ViewBag.Categories = sqlContext.Categories.ToList();
+            ViewBag.Albums = sqlContext.Albums.ToList();
+            ViewBag.SelectedCategory = categoryId;
+            ViewBag.SelectedAlbum = albumId;
+
+            return View(songs.ToList());
         }
+
 
         public IActionResult SingleSong(int id)
         {
@@ -397,14 +454,38 @@ namespace OnlineShop4DVDS.Controllers
 
         //Movie Page
 
-        public IActionResult MoviePage()
+        [HttpGet]
+        public IActionResult MoviePage(int? genreId, string sortBy)
         {
-            var movie = sqlContext.Movies
-                 .Include(mg => mg.MovieGenres)
-                     .ThenInclude(g => g.Genre)
-                 .ToList();
-            return View(movie);
+            var movies = sqlContext.Movies
+                .Include(m => m.MovieGenres)
+                    .ThenInclude(mg => mg.Genre)
+                .AsQueryable();
+
+            // Filter by Genre
+            if (genreId.HasValue)
+            {
+                movies = movies.Where(m => m.MovieGenres.Any(mg => mg.GenreId == genreId));
+            }
+
+            // Sorting Logic
+            switch (sortBy)
+            {
+                case "popular":
+                    movies = movies.OrderByDescending(m => m.MovieRating);
+                    break;
+                case "latest":
+                    movies = movies.OrderByDescending(m => m.MovieReleaseDate);
+                    break;
+                default:
+                    movies = movies.OrderBy(m => m.MovieTitle);
+                    break;
+            }
+
+            ViewBag.Genres = sqlContext.Genres.ToList(); // Pass genres to View
+            return View(movies.ToList());
         }
+
 
         public IActionResult SingleMovie(int id)
         {
@@ -430,10 +511,23 @@ namespace OnlineShop4DVDS.Controllers
 
         //News Page
 
-        public IActionResult NewsPage()
+        [HttpGet]
+        public IActionResult NewsPage(string sortOrder)
         {
-            var news = sqlContext.News.ToList();
-            return View(news);
+            var news = sqlContext.News.AsQueryable();
+
+            // Apply sorting based on the parameter
+            switch (sortOrder)
+            {
+                case "oldest":
+                    news = news.OrderBy(n => n.NewsDate);
+                    break;
+                default: // "latest" is the default
+                    news = news.OrderByDescending(n => n.NewsDate);
+                    break;
+            }
+
+            return View(news.ToList());
         }
 
         public IActionResult SingleNews(int id)

@@ -400,44 +400,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.ToTable("News");
                 });
 
-            modelBuilder.Entity("OnlineShop4DVDS.Models.Order", b =>
-                {
-                    b.Property<int>("OrderId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Phone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("OrderId");
-
-                    b.ToTable("Orders");
-                });
-
             modelBuilder.Entity("OnlineShop4DVDS.Models.Platform", b =>
                 {
                     b.Property<int>("PlatformId")
@@ -663,6 +625,47 @@ namespace OnlineShop4DVDS.Migrations
                     b.ToTable("UserSongs");
                 });
 
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Fulfilled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OrderId");
+
+                    b.ToTable("Orders");
+                });
+
             modelBuilder.Entity("OnlineShop4DVDS.Models.Album", b =>
                 {
                     b.HasOne("OnlineShop4DVDS.Models.Artist", "Artist")
@@ -693,7 +696,7 @@ namespace OnlineShop4DVDS.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("OnlineShop4DVDS.Models.Order", "Order")
+                    b.HasOne("Order", "Order")
                         .WithMany("CartItems")
                         .HasForeignKey("OrderId");
 
@@ -901,11 +904,6 @@ namespace OnlineShop4DVDS.Migrations
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("OnlineShop4DVDS.Models.Order", b =>
-                {
-                    b.Navigation("CartItems");
-                });
-
             modelBuilder.Entity("OnlineShop4DVDS.Models.Platform", b =>
                 {
                     b.Navigation("GamePlatforms");
@@ -923,6 +921,11 @@ namespace OnlineShop4DVDS.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("UserSongs");
+                });
+
+            modelBuilder.Entity("Order", b =>
+                {
+                    b.Navigation("CartItems");
                 });
 #pragma warning restore 612, 618
         }
