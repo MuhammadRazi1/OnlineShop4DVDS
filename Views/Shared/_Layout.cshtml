@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="~/css/style.css" type="text/css">
 
     <style>
-        .custom-search-modal {
+        .custom-search-modals {
             display: none;
             position: fixed;
             top: 0;
@@ -43,7 +43,7 @@
         }
 
         /* Modal Content */
-        .modal-content {
+        .modal-contents {
             background: #0b0c2a;
             padding: 20px;
             border-radius: 5px;
@@ -53,7 +53,7 @@
         }
 
         /* Close Button */
-        .close-btn {
+        .close-btns {
             position: absolute;
             top: 15px;
             right: 20px;
@@ -63,7 +63,7 @@
         }
 
         /* Search Input */
-        .modal-content input {
+        .modal-contents input {
             width: 80%;
             padding: 10px;
             border-radius: 5px;
@@ -73,7 +73,7 @@
         }
 
         /* Search Button */
-        .modal-content button {
+        .modal-contents button {
             padding: 10px 20px;
             background-color: #ff4d4d;
             color: white;
@@ -83,7 +83,7 @@
             font-size: 16px;
         }
 
-            .modal-content button:hover {
+            .modal-contents button:hover {
                 background-color: #cc0000;
             }
     </style>
@@ -136,9 +136,9 @@
                         <a href="javascript:void(0);" onclick="openSearchModal()" style="cursor: pointer;">
                             <span class="icon_search"></span>
                         </a>
-                        <div id="searchModal" class="custom-search-modal">
-                            <div class="modal-content">
-                                <span class="close-btn" onclick="closeSearchModal()">&times;</span>
+                        <div id="searchModal" class="custom-search-modals">
+                            <div class="modal-contents">
+                                <span class="close-btns" onclick="closeSearchModal()">&times;</span>
                                 <form asp-controller="User" asp-action="SearchResults" method="get">
                                     <input type="text" name="query" id="search-input" placeholder="Search for movies, albums, games..." required>
                                     <button type="submit">Search</button>

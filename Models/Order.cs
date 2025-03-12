@@ -13,5 +13,7 @@ public class Order
     public bool Fulfilled { get; set; } // New field
 
     public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+
+    public List<OrderItem> OrderItems { get; set; }
 }
 

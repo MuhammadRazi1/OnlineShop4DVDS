@@ -34,6 +34,7 @@ namespace OnlineShop4DVDS.SqlDbContext
         public DbSet<Order> Orders { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Producer> Producers { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

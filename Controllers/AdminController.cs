@@ -1380,26 +1380,45 @@ namespace OnlineShop4DVDS.Controllers
         public IActionResult OrderView()
         {
             var orders = sqlContext.Orders
-                .Include(o => o.CartItems)
-                .Join(sqlContext.Users,
-                      order => order.UserId,
-                      user => user.UserId,
-                      (order, user) => new
-                      {
-                          order.OrderId,
-                          order.OrderDate,
-                          order.TotalAmount,
-                          order.Phone,
-                          order.Country,
-                          order.City,
-                          order.Address,
-                          UserEmail = user.UserEmail,
-                          Fulfilled = order.Fulfilled // Include Fulfilled Status
-                      })
+                .Include(o => o.OrderItems)  // Ensure OrderItems are loaded
+                .ToList()  // Force execution before projection
+                .Select(order => new
+                {
+                    order.OrderId,
+                    order.OrderDate,
+                    order.TotalAmount,
+                    order.Phone,
+                    order.Country,
+                    order.City,
+                    order.Address,
+                    UserEmail = sqlContext.Users
+                        .Where(u => u.UserId == order.UserId)
+                        .Select(u => u.UserEmail)
+                        .FirstOrDefault(),
+                    Fulfilled = order.Fulfilled,
+                    Items = order.OrderItems.Select(oi => new
+                    {
+                        ItemName = GetItemName(oi.ItemType, oi.ItemId), // Call method instead of querying inside Select
+                        Quantity = oi.Quantity,
+                        Price = oi.Price
+                    }).ToList()
+                })
                 .ToList();
 
             return View(orders);
         }
+
+        private string GetItemName(string itemType, int itemId)
+        {
+            return itemType switch
+            {
+                "Game" => sqlContext.Games.Where(g => g.GameId == itemId).Select(g => g.GameName).FirstOrDefault() ?? "Unknown",
+                "Movie" => sqlContext.Movies.Where(m => m.MovieId == itemId).Select(m => m.MovieTitle).FirstOrDefault() ?? "Unknown",
+                "Album" => sqlContext.Albums.Where(a => a.AlbumId == itemId).Select(a => a.AlbumTitle).FirstOrDefault() ?? "Unknown",
+                _ => "Unknown"
+            };
+        }
+
 
         [HttpPost]
         public IActionResult ToggleOrderStatus(int id)
@@ -1414,6 +1433,36 @@ namespace OnlineShop4DVDS.Controllers
             sqlContext.SaveChanges();
 
             return Json(new { success = true, newStatus = order.Fulfilled });
+        }
+
+        [HttpGet]
+        public JsonResult GetOrderItems(int orderId)
+        {
+            Console.WriteLine($"📢 Fetching Order Items for Order ID: {orderId}"); // Debugging
+
+            var orderItems = sqlContext.OrderItems
+                .Where(oi => oi.OrderId == orderId)
+                .Select(oi => new
+                {
+                    ProductName = oi.ItemType == "Game"
+                        ? sqlContext.Games.Where(g => g.GameId == oi.ItemId).Select(g => g.GameName).FirstOrDefault()
+                        : oi.ItemType == "Movie"
+                        ? sqlContext.Movies.Where(m => m.MovieId == oi.ItemId).Select(m => m.MovieTitle).FirstOrDefault()
+                        : oi.ItemType == "Album"
+                        ? sqlContext.Albums.Where(a => a.AlbumId == oi.ItemId).Select(a => a.AlbumTitle).FirstOrDefault()
+                        : "Unknown",
+                    Quantity = (int?)oi.Quantity ?? 0,
+                    Price = (decimal?)oi.Price ?? 0.0M
+                })
+                .ToList();
+
+            Console.WriteLine($"✅ Found {orderItems.Count} items for Order ID: {orderId}"); // Debugging
+            foreach (var item in orderItems)
+            {
+                Console.WriteLine($"🛒 Item: {item.ProductName}, Quantity: {item.Quantity}, Price: {item.Price}");
+            }
+
+            return Json(new { items = orderItems });
         }
 
 

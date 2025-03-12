@@ -37,11 +37,9 @@
                         <form asp-action="FeedbackInsert" method="post">
                             <div class="input__item">
                                 <input asp-for="Subject" type="text" placeholder="Subject">
-                                <span class="icon_mail"></span>
                             </div>
                             <div class="input__item">
-                                <input asp-for="Message" type="text" placeholder="Message" style="height: 100px">
-                                <span class="icon_profile"></span>
+                                <input asp-for="Message" type="text" placeholder="Message">
                             </div>
                             <button type="submit" class="site-btn">Send</button>
                         </form>

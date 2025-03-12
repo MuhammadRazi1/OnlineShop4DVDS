@@ -133,18 +133,22 @@ namespace OnlineShop4DVDS.Controllers
             var popularMovies = sqlContext.Movies
         .OrderByDescending(m => m.MovieRating)
         .Take(3)
+        .Include(mg => mg.MovieGenres)
+            .ThenInclude(g => g.Genre)
         .ToList();
 
             var latestMovies = sqlContext.Movies
-        .OrderByDescending(m => m.MovieReleaseDate) // Sort by newest first
-        .Take(3) // Fetch top 3 latest movies
+        .OrderByDescending(m => m.MovieReleaseDate)
+        .Take(3)
+        .Include(mg => mg.MovieGenres)
+            .ThenInclude(g => g.Genre)
         .ToList();
 
             var recentSongs = sqlContext.Songs
-        .OrderByDescending(s => s.CreatedAt) // Sort by newest first
-        .Take(3) // Get top 3 most recent
+        .OrderByDescending(s => s.CreatedAt)
+        .Take(3)
         .Include(s => s.Album)
-        .Include(c => c.Category)// Include album details
+        .Include(c => c.Category)
         .ToList();
 
             ViewBag.RecentSongs = recentSongs;
@@ -754,7 +758,6 @@ namespace OnlineShop4DVDS.Controllers
             }
         }
 
-        // Helper method to get item image
         private string GetItemImage(string itemType, int itemId)
         {
             string imageName = null;
@@ -772,13 +775,11 @@ namespace OnlineShop4DVDS.Controllers
                     break;
             }
 
-            // If the image name is null or empty, use the default image
             if (string.IsNullOrEmpty(imageName))
             {
-                return "default-image.jpg"; // Default image in the root images folder
+                return "default-image.jpg";
             }
 
-            // Include the subfolder name based on the item type
             return $"{itemType.ToLower()}s/{imageName}";
         }
 
@@ -786,7 +787,7 @@ namespace OnlineShop4DVDS.Controllers
         {
             if (itemType != "Game" || !platformId.HasValue)
             {
-                return "N/A"; // Only games have platforms
+                return "N/A";
             }
 
             var platform = sqlContext.Platforms.FirstOrDefault(p => p.PlatformId == platformId.Value);
@@ -803,7 +804,6 @@ namespace OnlineShop4DVDS.Controllers
 
             var userId = HttpContext.Session.GetInt32("UserId");
 
-            // Retrieve or create the user's cart
             var cart = sqlContext.Carts
                 .Include(c => c.CartItems)
                 .FirstOrDefault(c => c.UserId == userId);
@@ -814,7 +814,6 @@ namespace OnlineShop4DVDS.Controllers
                 sqlContext.Carts.Add(cart);
             }
 
-            // Retrieve the item price based on the item type
             decimal price = 0;
             switch (itemType)
             {
@@ -838,18 +837,15 @@ namespace OnlineShop4DVDS.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Check if the item is already in the cart
             var existingItem = cart.CartItems
                 .FirstOrDefault(item => item.ItemType == itemType && item.ItemId == itemId && item.PlatformId == platformId);
 
             if (existingItem != null)
             {
-                // If the item is already in the cart, increase the quantity
                 existingItem.Quantity++;
             }
             else
             {
-                // If the item is not in the cart, add it
                 cart.CartItems.Add(new CartItem
                 {
                     ItemType = itemType,
@@ -860,27 +856,22 @@ namespace OnlineShop4DVDS.Controllers
                 });
             }
 
-            // Save changes to the database
             sqlContext.SaveChanges();
 
-            // Redirect to the cart view
             return RedirectToAction("CartView");
         }
 
         [HttpPost]
         public IActionResult RemoveFromCart(int cartItemId)
         {
-            // Retrieve the cart item from the database
             var cartItem = sqlContext.CartItems.FirstOrDefault(ci => ci.CartItemId == cartItemId);
 
             if (cartItem != null)
             {
-                // Remove the cart item from the database
                 sqlContext.CartItems.Remove(cartItem);
                 sqlContext.SaveChanges();
             }
 
-            // Redirect back to the cart view
             return RedirectToAction("CartView");
         }
 
@@ -905,7 +896,6 @@ namespace OnlineShop4DVDS.Controllers
                 return RedirectToAction("CartView");
             }
 
-            // Save the user's address if it doesn't already exist
             var userAddress = sqlContext.UserAddresses.FirstOrDefault(ua => ua.UserId == userId);
             if (userAddress == null)
             {
@@ -921,14 +911,13 @@ namespace OnlineShop4DVDS.Controllers
             }
             else
             {
-                // Update the existing address (optional)
                 userAddress.Phone = phone;
                 userAddress.Country = country;
                 userAddress.City = city;
                 userAddress.Address = address;
             }
 
-            // Save the order details
+            // ✅ Create the order
             var order = new Order
             {
                 UserId = userId.Value,
@@ -937,22 +926,35 @@ namespace OnlineShop4DVDS.Controllers
                 City = city,
                 Address = address,
                 OrderDate = DateTime.UtcNow,
-                TotalAmount = cart.CartItems.Sum(item => item.Price * item.Quantity)
+                TotalAmount = cart.CartItems.Sum(item => item.Price * item.Quantity),
+                Fulfilled = false
             };
 
             sqlContext.Orders.Add(order);
+            sqlContext.SaveChanges(); // Save to generate OrderId
 
-            // Clear the cart
+            // ✅ Copy cart items to OrderItems
+            var orderItems = cart.CartItems.Select(cartItem => new OrderItem
+            {
+                OrderId = order.OrderId, // Link to the new order
+                ItemType = cartItem.ItemType,
+                ItemId = cartItem.ItemId,
+                Quantity = cartItem.Quantity,
+                Price = cartItem.Price
+            }).ToList();
+
+            sqlContext.OrderItems.AddRange(orderItems);
+
+            // ✅ Clear the cart
             sqlContext.CartItems.RemoveRange(cart.CartItems);
 
-            // Save changes to the database
-            sqlContext.SaveChanges();
+            sqlContext.SaveChanges(); // Final save
 
             TempData["SuccessMessage"] = "Your order has been placed successfully!";
 
-            // Redirect to the thank you page
             return RedirectToAction("CartView");
         }
+
 
         //Search
 
@@ -960,7 +962,7 @@ namespace OnlineShop4DVDS.Controllers
         {
             if (string.IsNullOrEmpty(query))
             {
-                return View(new SearchResultsViewModel()); // Return an empty model if no query
+                return View(new SearchResultsViewModel());
             }
 
             var model = new SearchResultsViewModel

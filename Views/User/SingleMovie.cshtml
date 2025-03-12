@@ -79,7 +79,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="anime__details__btn">
+                        <div class="anime__details__btn d-flex align-items-center gap-3">
                             <form asp-action="AddToCart" asp-controller="User" method="post">
                                 <input type="hidden" name="ItemType" value="Movie" /> <!-- Or "Album" -->
                                 <input type="hidden" name="ItemId" value="@Model.MovieId" /> <!-- Or AlbumId -->

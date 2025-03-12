@@ -13,7 +13,6 @@
             <th>Address</th>
             <th>Total Price</th>
             <th>Order Date</th>
-            <th>Status</th>
             <th>Action</th>
         </tr>
     </thead>
@@ -30,14 +29,19 @@
                 <td>$@order.TotalAmount</td>
                 <td>@order.OrderDate.ToShortDateString()</td>
                 <td>
-                    <span id="status-@order.OrderId" class="badge @(order.Fulfilled ? "badge-success" : "badge-danger")">
-                        @(order.Fulfilled ? "Fulfilled" : "Pending")
-                    </span>
-                </td>
-                <td>
-                    <button class="btn btn-primary" onclick="toggleOrderStatus(@order.OrderId)">
-                        Toggle Status
+                    <button id="btn-@order.OrderId" class="btn btn-primary" onclick="markOrderFulfilled(@order.OrderId)"
+                    @(order.Fulfilled ? "disabled" : "")>
+                        Mark as Fulfilled
                     </button>
+                    <button class="btn btn-info" data-bs-toggle="collapse" data-bs-target="#items-@order.OrderId"
+                            onclick="fetchOrderItems(@order.OrderId)">
+                        View Items
+                    </button>
+                </td>
+            </tr>
+            <tr class="collapse" id="items-@order.OrderId">
+                <td colspan="9">
+                    <div id="order-items-@order.OrderId">Loading...</div>
                 </td>
             </tr>
         }
@@ -45,19 +49,53 @@
 </table>
 
 <script>
-    function toggleOrderStatus(orderId) {
-        fetch('/Admin/ToggleOrderStatus/' + orderId, {
-            method: 'POST'
-        })
+    function markOrderFulfilled(orderId) {
+        fetch('/Admin/ToggleOrderStatus/' + orderId, { method: 'POST' })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                let statusElement = document.getElementById("status-" + orderId);
-                statusElement.innerText = data.newStatus ? "Fulfilled" : "Pending";
-                statusElement.className = data.newStatus ? "badge badge-success" : "badge badge-danger";
+                document.getElementById("btn-" + orderId).disabled = true;
             } else {
                 alert("Failed to update order status.");
             }
         });
     }
+
+                        function fetchOrderItems(orderId) {
+        console.log("📢 Fetching items for Order ID:", orderId);
+
+        fetch('/Admin/GetOrderItems?orderId=' + orderId)
+            .then(response => response.json())
+            .then(data => {
+                console.log("✅ API Response:", data); // Debugging
+
+                let itemsContainer = document.getElementById("order-items-" + orderId);
+                if (data.items && data.items.length > 0) {
+                    let html = "<ul class='list-group'>";
+                    data.items.forEach(item => {
+                        console.log(`🛒 Product: ${item.productName}, Qty: ${item.quantity}, Price: ${item.price}`);
+
+                        let name = item.productName || "Unknown"; // Match API key: productName
+                        let qty = item.quantity ?? 0; // Match API key: quantity
+                        let price = item.price ?? 0.0; // Match API key: price
+
+                        html += `<li class="list-group-item">
+                                    <strong>${name}</strong> - ${qty} x $${price}
+                                 </li>`;
+                    });
+                    html += "</ul>";
+                    itemsContainer.innerHTML = html;
+                } else {
+                    console.warn(`⚠️ No items found for Order ID: ${orderId}`);
+                    itemsContainer.innerHTML = `<p>No items found for Order ID: ${orderId}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("❌ Error loading items:", error);
+                document.getElementById("order-items-" + orderId).innerHTML = "<p>Error loading items.</p>";
+            });
+    }
+
+
+
 </script>
