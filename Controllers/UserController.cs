@@ -283,15 +283,22 @@ namespace OnlineShop4DVDS.Controllers
 
             if (string.IsNullOrEmpty(useremail))
             {
+                Console.WriteLine("Session does not contain UserEmail.");
                 return RedirectToAction("Login");
             }
 
             var user = sqlContext.Users.FirstOrDefault(u => u.UserEmail == useremail);
             if (user == null)
             {
+                Console.WriteLine($"No user found with email: {useremail}");
                 return RedirectToAction("Login");
             }
 
+            var userReviews = sqlContext.Reviews.Where(r => r.UserId == user.UserId).ToList();
+            sqlContext.Reviews.RemoveRange(userReviews);
+
+            var orders = sqlContext.Orders.Where(o => o.UserId == user.UserId);
+            sqlContext.Orders.RemoveRange(orders);
             sqlContext.Users.Remove(user);
             sqlContext.SaveChanges();
 

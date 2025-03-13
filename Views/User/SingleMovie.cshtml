@@ -81,9 +81,8 @@
                         </div>
                         <div class="anime__details__btn d-flex align-items-center gap-3">
                             <form asp-action="AddToCart" asp-controller="User" method="post">
-                                <input type="hidden" name="ItemType" value="Movie" /> <!-- Or "Album" -->
-                                <input type="hidden" name="ItemId" value="@Model.MovieId" /> <!-- Or AlbumId -->
-                                <!-- Add to Cart Button -->
+                                <input type="hidden" name="ItemType" value="Movie" />
+                                <input type="hidden" name="ItemId" value="@Model.MovieId" />
                                 <button type="submit" class="follow-btn">
                                     <i class="fa fa-heart-o"></i> Add to Cart
                                 </button>

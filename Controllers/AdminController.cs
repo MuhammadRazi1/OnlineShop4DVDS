@@ -1230,11 +1230,6 @@ namespace OnlineShop4DVDS.Controllers
         [HttpPost]
         public IActionResult UserUpdate(User user)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(user);
-            }
-
             var existingUser = sqlContext.Users.FirstOrDefault(c => c.UserId == user.UserId);
             if (existingUser == null)
             {
@@ -1244,9 +1239,18 @@ namespace OnlineShop4DVDS.Controllers
             existingUser.UserName = user.UserName;
             existingUser.UserEmail = user.UserEmail;
             existingUser.UserRole = user.UserRole;
-            sqlContext.Users.Update(existingUser);
+
             sqlContext.SaveChanges();
 
+            return RedirectToAction("UserView");
+        }
+
+        [HttpPost]
+        public IActionResult UserDelete(int id)
+        {
+            var user = sqlContext.Users.FirstOrDefault(u => u.UserId == id);
+            sqlContext.Users.Remove(user);
+            sqlContext.SaveChanges();
             return RedirectToAction("UserView");
         }
 

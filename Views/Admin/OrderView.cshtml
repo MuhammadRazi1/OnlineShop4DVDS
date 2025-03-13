@@ -62,22 +62,19 @@
     }
 
                         function fetchOrderItems(orderId) {
-        console.log("📢 Fetching items for Order ID:", orderId);
 
         fetch('/Admin/GetOrderItems?orderId=' + orderId)
             .then(response => response.json())
             .then(data => {
-                console.log("✅ API Response:", data); // Debugging
 
                 let itemsContainer = document.getElementById("order-items-" + orderId);
                 if (data.items && data.items.length > 0) {
                     let html = "<ul class='list-group'>";
                     data.items.forEach(item => {
-                        console.log(`🛒 Product: ${item.productName}, Qty: ${item.quantity}, Price: ${item.price}`);
 
-                        let name = item.productName || "Unknown"; // Match API key: productName
-                        let qty = item.quantity ?? 0; // Match API key: quantity
-                        let price = item.price ?? 0.0; // Match API key: price
+                        let name = item.productName || "Unknown";
+                        let qty = item.quantity ?? 0;
+                        let price = item.price ?? 0.0;
 
                         html += `<li class="list-group-item">
                                     <strong>${name}</strong> - ${qty} x $${price}
@@ -86,12 +83,10 @@
                     html += "</ul>";
                     itemsContainer.innerHTML = html;
                 } else {
-                    console.warn(`⚠️ No items found for Order ID: ${orderId}`);
                     itemsContainer.innerHTML = `<p>No items found for Order ID: ${orderId}</p>`;
                 }
             })
             .catch(error => {
-                console.error("❌ Error loading items:", error);
                 document.getElementById("order-items-" + orderId).innerHTML = "<p>Error loading items.</p>";
             });
     }
